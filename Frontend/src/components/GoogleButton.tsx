@@ -3,9 +3,10 @@ import React from 'react';
 interface GoogleButtonProps {
     onClick: () => void;
     isLoading?: boolean;
+    label?: string;
 }
 
-const GoogleButton: React.FC<GoogleButtonProps> = ({ onClick, isLoading }) => {
+const GoogleButton: React.FC<GoogleButtonProps> = ({ onClick, isLoading, label = "Continue with Google" }) => {
     return (
         <button
             onClick={onClick}
@@ -21,7 +22,7 @@ const GoogleButton: React.FC<GoogleButtonProps> = ({ onClick, isLoading }) => {
                         alt="Google logo"
                         className="w-6 h-6 mr-3"
                     />
-                    <span>Continue with Google</span>
+                    <span>{label}</span>
                 </>
             )}
         </button>

@@ -22,6 +22,37 @@ const userSchema = new mongoose.Schema({
         trim: true,
         index: true
     },
+    leetcodeUsername: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    codeforcesUsername: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    codechefUsername: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    githubUsername: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    linkedinUrl: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    deployedProjects: [{
+        title: String,
+        url: String,
+        description: String,
+        dateAdded: { type: Date, default: Date.now }
+    }],
     avatar: {
         type: String, // Cloudinary url
         required: true,
@@ -32,6 +63,29 @@ const userSchema = new mongoose.Schema({
     },
     refreshToken: {
         type: String
+    },
+    roadmaps: {
+        dsa: {
+            subtopics: {
+                type: Map,
+                of: Object,
+                default: {}
+            }
+        },
+        webdev: {
+            subtopics: {
+                type: Map,
+                of: Object,
+                default: {}
+            }
+        },
+        appdev: {
+            subtopics: {
+                type: Map,
+                of: Object,
+                default: {}
+            }
+        }
     }
 }, { timestamps: true }
 );

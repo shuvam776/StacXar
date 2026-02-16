@@ -10,21 +10,27 @@ const firebaseConfig = {
     appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
+import { getFirestore, type Firestore } from "firebase/firestore";
+import { type Auth } from "firebase/auth";
+
 const isConfigValid = firebaseConfig.apiKey && firebaseConfig.authDomain;
 
 let app;
-let auth: any;
+let auth: Auth;
 let googleProvider: any;
+let db: Firestore;
 
 if (isConfigValid) {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
+    db = getFirestore(app);
     googleProvider = new GoogleAuthProvider();
 } else {
     console.warn("Firebase environment variables missing. Auth will be disabled/mocked.");
     // Mocking auth for UI preview purposes if needed, or keeping it null to handle in components
-    auth = null;
+    auth = null as unknown as Auth;
+    db = null as unknown as Firestore;
     googleProvider = null;
 }
 
-export { auth, googleProvider };
+export { auth, db, googleProvider };

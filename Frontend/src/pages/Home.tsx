@@ -1,175 +1,167 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { fetchVideos } from '../api/videoApi';
-import type { Video } from '../api/videoApi';
 import { useNavigate } from 'react-router-dom';
+import { auth, googleProvider } from '../firebase/firebase';
+import { signInWithPopup, type User } from 'firebase/auth';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import GoogleButton from '../components/GoogleButton';
+import OrbitalVisual from '../components/home/OrbitalVisual';
+import CommunitySection from '../components/home/CommunitySection';
 
 const Home: React.FC = () => {
-    const [videos, setVideos] = useState<Video[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // Replace this with your actual Cloudinary 3D video URL
-    const FALLBACK_VIDEO_URL = "https://res.cloudinary.com/demo/video/upload/v1687430064/samples/cld-sample-video.mp4";
-
     useEffect(() => {
-        fetchVideos().then(vids => {
-            if (vids.length === 0) {
-                // Return a dummy video object if no videos are found
-                setVideos([{
-                    _id: 'fallback',
-                    url: FALLBACK_VIDEO_URL,
-                    title: 'Welcome to StacXar',
-                    public_id: 'fallback_video'
-                } as Video]);
-            } else {
-                setVideos(vids);
-            }
-            setLoading(false);
-        });
+        if (auth) {
+            const unsubscribe = auth.onAuthStateChanged((currentUser: User | null) => {
+                setUser(currentUser);
+            });
+            return () => unsubscribe();
+        }
     }, []);
 
-    if (loading) return (
-        <div style={{ background: '#0a0a0a', color: '#fff', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', fontFamily: 'sans-serif' }}>
-            <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                Loading Experience...
-            </motion.div>
-        </div>
-    );
+    const handleGoogleLogin = async () => {
+        setLoading(true);
+        if (!auth) {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            await signInWithPopup(auth, googleProvider);
+            navigate('/dashboard');
+        } catch (err) {
+            console.error("Login failed", err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
-        <div style={{
-            background: '#0a0a0a',
-            height: '100vh',
-            overflowY: 'scroll',
-            scrollSnapType: 'y mandatory',
-            overflowX: 'hidden'
-        }}>
-            <nav style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                padding: '24px 40px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                zIndex: 50,
-                mixBlendMode: 'difference',
-                color: 'white',
-                boxSizing: 'border-box'
-            }}>
-                <div style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-1px' }}>StacXar</div>
-                <button
-                    onClick={() => navigate('/login')}
-                    style={{
-                        background: 'white',
-                        color: 'black',
-                        border: 'none',
-                        padding: '10px 24px',
-                        borderRadius: '100px',
-                        cursor: 'pointer',
-                        fontWeight: 600,
-                        fontSize: '0.9rem'
-                    }}
-                >
-                    Get Started
-                </button>
-            </nav>
+        <div className="relative min-h-screen bg-[#050505] text-white flex flex-col font-sans selection:bg-primary/30 selection:text-primary overflow-x-hidden">
+            <Navbar user={user} />
 
-            {videos.length === 0 ? (
-                <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: 'white', background: '#0a0a0a' }}>
-                    <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>No Content Yet</h2>
-                    <p style={{ color: '#888' }}>Upload a video from the backend to activate the showcase.</p>
+            {/* Hero Section */}
+            <main className="flex-grow relative z-10 pt-32 pb-16 min-h-[90vh] flex items-center">
+                <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
+
+                    {/* Left: Content */}
+                    <motion.div
+                        initial={{ opacity: 0, x: -50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.8 }}
+                        className="relative z-20 text-left"
+                    >
+                        <h1 className="text-5xl md:text-7xl font-black leading-tight tracking-tighter mb-6 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
+                            Forge Your <br />
+                            <span className="text-primary italic">Destiny.</span>
+                        </h1>
+                        <p className="text-xl text-gray-400 mb-10 max-w-lg leading-relaxed">
+                            The ultimate ecosystem for mastering DSA and Modern Development.
+                            Interactive roadmaps built for performance.
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row items-start gap-4">
+                            {user ? (
+                                <button
+                                    onClick={() => navigate('/dashboard')}
+                                    className="px-8 py-4 bg-primary text-white font-serif hover:text-black hover:bg-white rounded-xl hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,215,0,0.3)]"
+                                >
+                                    OPEN DASHBOARD
+                                </button>
+                            ) : (
+                                <GoogleButton onClick={handleGoogleLogin} isLoading={loading} />
+                            )}
+                        </div>
+                    </motion.div>
+
+                    {/* Right: Restored OrbitalVisual + Video Frame */}
+                    <div className="relative h-[600px] flex items-center justify-center">
+                        {/* OrbitalVisual as a background element */}
+                        <div className="absolute inset-0 z-0 opacity-60 scale-125 pointer-events-none translate-y-[-5%] overflow-visible relative top-5">
+                            <OrbitalVisual />
+                        </div>
+                    </div>
                 </div>
-            ) : (
-                videos.map((video, index) => (
-                    <VideoSection key={video._id} video={video} index={index} />
-                ))
-            )}
+            </main>
 
-            <footer style={{
-                position: 'fixed',
-                bottom: 20,
-                width: '100%',
-                textAlign: 'center',
-                color: 'rgba(255,255,255,0.4)',
-                fontSize: '0.8rem',
-                zIndex: 40,
-                pointerEvents: 'none'
-            }}>
-                © 2026 StacXar. Redefining Visuals.
-            </footer>
+            {/* Brand Section */}
+            <section className="py-20 border-y border-white/5 bg-[#080808]/50 overflow-hidden">
+                <div className="flex whitespace-nowrap animate-marquee">
+                    {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="flex gap-12 px-6 items-center">
+                            {['DATA STRUCTURES', 'ALGORITHMS', 'SYSTEMS', 'FRONTEND', 'BACKEND'].map((tech) => (
+                                <span key={tech} className="text-4xl md:text-6xl font-black text-white/5 hover:text-primary/20 transition-colors duration-500">{tech}</span>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* Benefits Section - "The What & How" */}
+            <section className="py-32 relative">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="mb-20 text-center">
+                        <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4 uppercase">Why StacXar?</h2>
+                        <p className="text-gray-500 max-w-2xl mx-auto">Expertly crafted paths from zero to senior engineer.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {benefits.map((benefit, idx) => (
+                            <motion.div
+                                key={idx}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: idx * 0.1 }}
+                                className="group relative p-8 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] hover:shadow-[0_8px_32px_0_rgba(255,215,0,0.2)] hover:scale-105 transition-all duration-300 hover:border-primary/40 overflow-hidden"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 text-primary group-hover:scale-110 transition-transform">
+                                    {benefit.icon}
+                                </div>
+                                <h3 className="text-xl font-bold mb-3">{benefit.title}</h3>
+                                <p className="text-gray-400 leading-relaxed text-sm md:text-base">
+                                    {benefit.description}
+                                </p>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* COMMUNITY */}
+            <CommunitySection />
+
+            <Footer />
         </div>
     );
 };
 
-const VideoSection = ({ video, index }: { video: Video, index: number }) => {
-    return (
-        <motion.section
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: false, margin: "-10%" }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-            style={{
-                height: '100vh',
-                width: '100vw',
-                position: 'relative',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                overflow: 'hidden',
-                scrollSnapAlign: 'start'
-            }}
-        >
-            <video
-                src={video.url}
-                autoPlay
-                loop
-                muted
-                playsInline
-                style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    filter: 'brightness(0.6)'
-                }}
-            />
-            <div style={{
-                position: 'relative',
-                zIndex: 10,
-                textAlign: 'center',
-                color: 'white',
-                maxWidth: '80%'
-            }}>
-                <motion.div
-                    initial={{ y: 100, opacity: 0 }}
-                    whileInView={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.3, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                >
-                    <h2 style={{
-                        fontSize: 'clamp(3rem, 8vw, 6rem)',
-                        lineHeight: 1,
-                        marginBottom: '1rem',
-                        fontWeight: 800,
-                        letterSpacing: '-0.02em'
-                    }}>
-                        {video.title || `Vision ${index + 1}`}
-                    </h2>
-                    <p style={{
-                        fontSize: 'clamp(1rem, 2vw, 1.5rem)',
-                        color: 'rgba(255,255,255,0.8)',
-                        maxWidth: '600px',
-                        margin: '0 auto'
-                    }}>
-                        Experience the motion. Deep dive into the visual spectrum.
-                    </p>
-                </motion.div>
-            </div>
-        </motion.section>
-    );
-};
+const benefits = [
+    {
+        title: "Syllabus for Winners",
+        description: "What: A battle-tested curriculum covering everything from Big-O to System Design. How: We cut the fluff and focus on patterns companies actually ask.",
+        icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+    },
+    {
+        title: "Persistent Mastery",
+        description: "What: Real-time progress tracking across all your devices. How: Powered by Firebase, your journey is saved automatically as you conquer each node.",
+        icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+    },
+    {
+        title: "Pro-Level Resources",
+        description: "What: Verified documentation and premium video tutorials. How: Each topic is linked to top-tier sources like CP-Algorithms and GeeksForGeeks.",
+        icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+    },
+    {
+        title: "Interview Ready",
+        description: "What: Targeted problem sets for FAANG and top startups. How: Master the core techniques like Sliding Window and DP that dominate coding rounds.",
+        icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+    }
+];
 
 export default Home;

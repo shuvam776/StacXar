@@ -25,7 +25,7 @@ const Login: React.FC = () => {
         try {
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
-            console.log("Logged in user",user.email);
+            console.log("Logged in user", user.email);
             navigate('/');
         } catch (err: any) {
             console.error("Login failed", err);
@@ -36,9 +36,9 @@ const Login: React.FC = () => {
     };
 
     return (
-        <div className="full-screen flex items-center justify-center relative">
+        <div className="min-h-screen w-full flex items-center justify-center relative bg-black">
             {/* Background enhancement */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black z-[-1]"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black z-0"></div>
 
             <div className="z-10 text-center p-8 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 w-full max-w-md animate-fade-in">
                 <h1 className="text-4xl font-bold mb-2">Welcome Back</h1>
@@ -46,7 +46,7 @@ const Login: React.FC = () => {
 
                 {!auth && (
                     <div className="mb-4 p-2 bg-yellow-500/20 border border-yellow-500/50 text-yellow-200 rounded text-xs">
-                       Some problem in env
+                        Some problem in env
                     </div>
                 )}
 
