@@ -586,7 +586,9 @@ const Dashboard: React.FC = () => {
                                 </div>
                                 {/* Keep the rest of the grid for visual stability if needed, or just show others */}
                                 <CardContainer className="inter-var py-0 opacity-20 pointer-events-none" containerClassName="py-0 block">
-                                    <CardBody className="bg-white/5 border-white/10 w-full md:w-[280px] h-48 rounded-3xl p-6 border shadow-2xl overflow-hidden flex flex-col justify-between"></CardBody>
+                                    <CardBody className="bg-white/5 border-white/10 w-full md:w-[280px] h-48 rounded-3xl p-6 border shadow-2xl overflow-hidden flex flex-col justify-between">
+                                        <div />
+                                    </CardBody>
                                 </CardContainer>
                             </div>
                         ) : editMode?.type === 'github' && !webDevData?.user.githubUsername ? (

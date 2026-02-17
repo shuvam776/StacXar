@@ -48,7 +48,7 @@ const DashboardLayout: React.FC = () => {
                                     to={link.path}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className={({ isActive }) =>
-                                        `block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive ? 'bg-primary text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                        `block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive ? 'text-primary bg-white/10' : 'text-gray-400 hover:text-white hover:bg-white/5'
                                         }`
                                     }
                                 >

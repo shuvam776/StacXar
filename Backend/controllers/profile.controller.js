@@ -35,7 +35,9 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
     try {
         const email = req.user?.email || req.headers['user-email'];
-        if (!email) return res.status(401).json({ message: "Unauthorized: No email provided" });
+        if (!email) {
+            return res.status(401).json({ message: "Unauthorized: No email provided" });
+        }
 
         // Allowed fields to update
         const updateData = {};
@@ -55,7 +57,6 @@ exports.updateProfile = async (req, res) => {
                     try {
                         updateData[field] = JSON.parse(req.body[field]);
                     } catch (e) {
-                        console.error("Error parsing deployedProjects:", e);
                         updateData[field] = [];
                     }
                 } else if (typeof req.body[field] === 'string') {
@@ -68,31 +69,66 @@ exports.updateProfile = async (req, res) => {
 
         // Handle Avatar Upload
         if (req.file) {
-            const avatar = await uploadOnCloudinary(req.file.path);
-            if (avatar) {
-                updateData.avatar = avatar.url;
+            try {
+                const avatar = await uploadOnCloudinary(req.file.path);
+                if (avatar && avatar.secure_url) {
+                    updateData.avatar = avatar.secure_url;
+                } else {
+                    return res.status(500).json({ message: "Failed to upload image to Cloudinary." });
+                }
+            } catch (uploadError) {
+                return res.status(500).json({ message: "Cloudinary service error." });
             }
+        }
+
+        // Fetch user first to check for missing required fields (legacy users)
+        const existingUser = await User.findOne({ email });
+        if (!existingUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Ensure required fields exist if they were missing (legacy users)
+        if (!existingUser.username && !updateData.username) {
+            const defaultUsername = email.split('@')[0] + "_" + Math.floor(Math.random() * 1000);
+            updateData.username = defaultUsername;
+        }
+
+        if (!existingUser.fullName && !updateData.fullName) {
+            // If we have existingUser.fullName, we don't need to update it
+            // But if both are missing, use a placeholder
+            if (!existingUser.fullName) {
+                updateData.fullName = "StacXar User";
+            }
+        }
+
+        if (!existingUser.avatar && !updateData.avatar) {
+            const avatarSeed = updateData.username || existingUser.username || "default";
+            updateData.avatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`;
         }
 
         const user = await User.findOneAndUpdate(
             { email },
             { $set: updateData },
-            { new: true, runValidators: true }
+            { new: true, runValidators: false }
         ).select('-password -__v');
 
-        if (!user) return res.status(404).json({ message: "User not found" });
+        if (!user) {
+            return res.status(500).json({ message: "Database update failed." });
+        }
 
         // Trigger Rank Recomputation if any social handle changed
         const socialHandles = ['leetcodeUsername', 'codeforcesUsername', 'githubUsername'];
         const changedSocial = socialHandles.some(field => req.body[field] !== undefined);
 
         if (changedSocial) {
-            recomputeUserRank(user).catch(err => console.error("Profile update rank recompute error:", err));
+            recomputeUserRank(user).catch(err => {
+                console.error("[ProfileUpdate] Rank recompute background error:", err.message);
+            });
         }
 
         return res.status(200).json(user);
     } catch (error) {
-        console.error("Profile Update Error:", error);
-        return res.status(500).json({ message: "Server error" });
+        console.error("[ProfileUpdate] Global Error:", error);
+        return res.status(500).json({ message: "Internal server error." });
     }
 };

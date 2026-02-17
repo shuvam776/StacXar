@@ -16,20 +16,20 @@ const Sidebar: React.FC = () => {
             <div className="p-6 border-b border-white/10">
                 <h2
                     onClick={() => navigate('/')}
-                    className="text-2xl font-bold text-primary tracking-tight cursor-pointer"
+                    className="text-2xl font-bold text-primary text-white tracking-tight cursor-pointer"
                 >
                     StacXar
                 </h2>
                 <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest font-bold">Learning Path</p>
             </div>
-            <nav className="flex-1 p-4 space-y-2">
+            <nav className="flex-1 p-4 space-y-2 text-white">
                 {links.map((link) => (
                     <NavLink
                         key={link.path}
                         to={link.path}
                         className={({ isActive }) =>
-                            `block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive
-                                ? 'bg-primary'
+                            `block px-4 py-3 rounded-lg text-sm font-medium transition-colors  ${isActive
+                                ? 'text-primary bg-primary/10'
                                 : 'text-gray-400 hover:text-white hover:bg-white/5'
                             }`
                         }

@@ -185,12 +185,19 @@ const Profile: React.FC = () => {
         try {
             const uploadFormData = new FormData();
             (Object.keys(formData) as Array<keyof UserProfile>).forEach(key => {
-                if (key !== 'ranking' && formData[key] !== null) {
-                    if (key === 'deployedProjects') {
-                        uploadFormData.append(key, JSON.stringify(formData[key]));
-                    } else {
-                        uploadFormData.append(key, formData[key] as string);
-                    }
+                // Don't append ranking or null values
+                if (key === 'ranking' || formData[key] === null) return;
+
+                // Internal state fields to skip
+                if ((key as any) === 'avatarFile') return;
+
+                // If uploading a new file, don't append the base64 preview string
+                if (key === 'avatar' && (formData as any).avatarFile) return;
+
+                if (key === 'deployedProjects') {
+                    uploadFormData.append(key, JSON.stringify(formData[key]));
+                } else {
+                    uploadFormData.append(key, formData[key] as string);
                 }
             });
 
@@ -205,17 +212,19 @@ const Profile: React.FC = () => {
                 },
                 body: uploadFormData
             });
-
-            if (res.ok) {
-                const updatedProfile = await res.json();
-                setProfile({ ...updatedProfile, ranking: profile?.ranking });
-                setIsEditing(false);
-                setMessage({ type: 'success', text: 'Profile updated successfully!' });
-            } else {
-                setMessage({ type: 'error', text: 'Failed to update profile.' });
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.message || `Server error (${res.status})`);
             }
-        } catch (err) {
-            setMessage({ type: 'error', text: 'Network error.' });
+
+            const updatedUser = await res.json();
+            setProfile({ ...updatedUser, ranking: profile?.ranking });
+            setIsEditing(false);
+            setMessage({ type: 'success', text: 'Profile updated successfully!' });
+
+        } catch (err: any) {
+            console.error('Error updating profile:', err);
+            setMessage({ type: 'error', text: err.message || 'Failed to update profile.' });
         } finally {
             setSaving(false);
             setTimeout(() => setMessage(null), 3000);
