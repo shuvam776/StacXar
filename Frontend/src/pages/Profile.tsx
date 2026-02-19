@@ -429,8 +429,17 @@ const Profile: React.FC = () => {
                                                         setProfile({ ...updated, ranking: profile?.ranking });
                                                         setEditingField(null);
                                                         setMessage({ type: 'success', text: 'Avatar updated!' });
+                                                    } else {
+                                                        const errorData = await res.json().catch(() => ({}));
+                                                        throw new Error(errorData.message || 'Failed to update avatar.');
                                                     }
-                                                } catch (e) { console.error(e); } finally { setSaving(false); }
+                                                } catch (e: any) {
+                                                    console.error(e);
+                                                    setMessage({ type: 'error', text: e.message || 'Error updating avatar.' });
+                                                } finally {
+                                                    setSaving(false);
+                                                    setTimeout(() => setMessage(null), 3000);
+                                                }
                                             }}
                                             className="p-2 bg-green-600 text-white rounded-full hover:bg-green-500 transition-all shadow-[0_0_10px_rgba(22,163,74,0.3)]"
                                             title="Save Avatar"

@@ -6,9 +6,13 @@ exports.getRoadmapProgress = async (req, res) => {
         if (!email) return res.status(401).json({ message: "Unauthorized: No email provided" });
 
         const user = await User.findOne({ email });
-        if (!user) return res.status(404).json({ message: "User not found" });
+        if (!user) {
+            console.log(`[Roadmap] New user ${email}: Initializing empty progress`);
+            return res.status(200).json({});
+        }
         return res.status(200).json(user.roadmaps || {});
     } catch (error) {
+        console.error(`[Roadmap Error] Fetch failed for ${req.headers['user-email']}:`, error);
         return res.status(500).json({ message: error.message });
     }
 };

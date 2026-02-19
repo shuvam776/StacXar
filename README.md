@@ -1,59 +1,70 @@
 # StacXar
 
-StacXar is a full-stack learning platform for college students focused on DSA and tech roadmaps with immersive 3D-inspired UI and modern authentication.
+StacXar is a premium, full-stack learning platform for college students, featuring immersive 3D-inspired UI, dynamic DSA roadmaps, and integrated technical profiles.
 
-## Tech Stack
+## ✨ Key Features
 
-- **Frontend:** React + TypeScript (Vite), Vanilla CSS (Immersive Dark Theme)
-- **Backend:** Node.js + Express, MongoDB (Mongoose)
-- **Authentication:** Firebase (Google Login)
-- **Media:** Cloudinary (3D Video Backgrounds)
+- **Immersive UI/UX:** High-performance, dark-mode design with smooth Framer Motion animations and 3D video backgrounds.
+- **Dynamic Roadmaps:** Interactive DSA and App Dev roadmaps with progress persistence.
+- **Identity Dashboard:** Unified view of coding profiles (LeetCode, Codeforces, GitHub, etc.) with real-time stats fetching.
+- **Simplified Auth:** Seamless Google Authentication via Firebase (no more manual forms).
+- **Mobile Optimized:** Fully responsive design, specifically refined for profile management on the go.
 
-## Project Structure
+## 🛠️ Tech Stack
+
+- **Frontend:** React 18, TypeScript, Vite, Tailwind CSS, Framer Motion.
+- **Backend:** Node.js, Express, MongoDB (Mongoose).
+- **Authentication:** Firebase Auth (Google OAuth).
+- **Media & Storage:** Cloudinary (Profile pictures & assets).
+- **Deployment:** Ready for Render (includes `render.yaml`).
+
+## 📁 Project Structure
 
 ```
-├── backend/            # Express Server & API
-├── frontend/           # React + Vite Client
+├── Backend/            # Express Server, MongoDB Models, Controllers
+├── Frontend/           # React Client (Vite)
+│   ├── src/
+│   │   ├── components/ # Reusable UI components
+│   │   ├── pages/      # Main application views
+│   │   └── dsaData.ts  # Roadmap and topic configurations
+└── .agent/             # Project intelligence & workflows
 ```
 
-## Setup Instructions
+## 🚀 Getting Started
 
 ### 1. Backend Setup
 
 ```bash
-cd backend
+cd Backend
 npm install
 npm run dev
 ```
 
-Create a `.env` file in `backend/` based on `.env.example`:
+**Required `.env` in `Backend/`:**
 ```env
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/stacxar
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
+MONGO_URI=your_mongodb_connection_string
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
 ```
 
 ### 2. Frontend Setup
 
 ```bash
-cd frontend
+cd Frontend
 npm install
 npm run dev
 ```
 
-Create a `.env` file in `frontend/` based on `.env.example`:
+**Required `.env` in `Frontend/`:**
 ```env
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-...
+VITE_FIREBASE_API_KEY=...
 VITE_BACKEND_URL=http://localhost:5000
 ```
 
-## Features
+## 🌐 Deployment
 
-- **Home Page:** Immersive 3D video background with "Get Started" CTA.
-- **Login:** Google Authentication using Firebase.
-- **Architecture:** Clean, scalable MVC backend and modular frontend.
-"# StacXar" 
-"# StacXar" 
+The project is configured for easy deployment on **Render**:
+- Frontend uses `render.yaml` for static site hosting with proper routing rewrites.
+- Ensure all environment variables are set in the Render dashboard.

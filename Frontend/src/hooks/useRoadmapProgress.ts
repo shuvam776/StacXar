@@ -42,19 +42,30 @@ export const useRoadmapProgress = (roadmapType: string = 'dsa') => {
                     }
                 });
 
-                if (!response.ok) throw new Error('Failed to fetch progress');
+                if (response.status === 404) {
+                    console.log(`[Roadmap] No profile found for ${user.email}, starting fresh.`);
+                    setRoadmapState({});
+                    setLoading(false);
+                    return;
+                }
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || `Server error: ${response.status}`);
+                }
 
                 const data = await response.json();
 
-                // Ensure we proceed even if data is empty (new user)
-                // Ensure we proceed even if data is empty (new user)
                 if (data && data[roadmapType] && data[roadmapType].subtopics) {
                     setRoadmapState(data[roadmapType].subtopics);
                 } else {
                     setRoadmapState({});
                 }
-            } catch (error) {
-                console.error("Failed to fetch roadmap progress", error);
+            } catch (error: any) {
+                console.group("[Roadmap Fetch Error]");
+                console.error("Message:", error.message);
+                console.error("API Base:", API_BASE);
+                console.groupEnd();
                 setRoadmapState({});
             } finally {
                 setLoading(false);
@@ -128,7 +139,7 @@ export const useRoadmapProgress = (roadmapType: string = 'dsa') => {
             try {
                 if (!user.email) return;
 
-                await fetch(`${API_BASE}/roadmap/update`, {
+                const response = await fetch(`${API_BASE}/roadmap/update`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -140,8 +151,15 @@ export const useRoadmapProgress = (roadmapType: string = 'dsa') => {
                         data
                     })
                 });
+
+                if (!response.ok) {
+                    const errorInfo = await response.json().catch(() => ({}));
+                    console.error("[Roadmap Save Error]", errorInfo);
+                    window.alert(`⚠️ Failed to save progress for ${subtopicId}. Please check your connection.`);
+                }
             } catch (error) {
-                console.error("Failed to save to MongoDB", error);
+                console.error("[Roadmap Save Error] Network failure:", error);
+                window.alert("⚠️ Connection error: Your progress could not be saved to our servers.");
             }
         }, 1000) as unknown as number;
 
