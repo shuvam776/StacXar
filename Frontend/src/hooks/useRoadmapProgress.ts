@@ -153,13 +153,20 @@ export const useRoadmapProgress = (roadmapType: string = 'dsa') => {
                 });
 
                 if (!response.ok) {
-                    const errorInfo = await response.json().catch(() => ({}));
-                    console.error("[Roadmap Save Error]", errorInfo);
-                    window.alert(`⚠️ Failed to save progress for ${subtopicId}. Please check your connection.`);
+                    const errorText = await response.text();
+                    let errorData: any = {};
+                    try { errorData = JSON.parse(errorText); } catch (e) { }
+
+                    console.group("[Roadmap Save Error]");
+                    console.error("Status:", response.status);
+                    console.error("Response Body:", errorData);
+                    console.groupEnd();
+
+                    window.alert(`⚠️ Failed to save progress: ${errorData.message || response.statusText || 'Server Error'}`);
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error("[Roadmap Save Error] Network failure:", error);
-                window.alert("⚠️ Connection error: Your progress could not be saved to our servers.");
+                window.alert("⚠️ Connection error: Could not connect to the server.");
             }
         }, 1000) as unknown as number;
 

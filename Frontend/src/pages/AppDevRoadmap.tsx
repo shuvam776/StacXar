@@ -20,7 +20,7 @@ interface Rect {
 
 const AppDevRoadmap: React.FC = () => {
     const [selectedTrack, setSelectedTrack] = useState<AppDevTrack | null>(null);
-    const { roadmapState, loading, toggleResource } = useRoadmapProgress();
+    const { roadmapState, loading, toggleResource } = useRoadmapProgress('appdev');
     const [activeSubtopic, setActiveSubtopic] = useState<SubTopic | null>(null);
     const [nodePositions, setNodePositions] = useState<Map<string, Rect>>(new Map());
     const nodeRefs = useRef<Map<string, HTMLDivElement>>(new Map());

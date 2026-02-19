@@ -36,23 +36,31 @@ exports.updateRoadmapProgress = async (req, res) => {
 
         const updateField = `roadmaps.${roadmapType}.subtopics.${subtopicId}`;
 
+        console.log(`[Roadmap Update] Params: email=${email}, type=${roadmapType}, field=${updateField}`);
+        console.log(`[Roadmap Update] Data:`, JSON.stringify(data));
+
         // Uses $set to update specific subtopic in the Map
         const user = await User.findOneAndUpdate(
             { email },
             {
                 $set: { [updateField]: data },
                 $setOnInsert: {
-                    username: email.split('@')[0],
+                    username: email.split('@')[0] || 'user_' + Date.now(),
                     fullName: 'New User',
                     password: 'firebase-auth-user',
                     avatar: 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
                 }
             },
             { new: true, upsert: true }
-        );
+        ).catch(err => {
+            console.error(`[Roadmap Update Error] MongoDB Failure:`, err);
+            throw err;
+        });
 
+        console.log(`[Roadmap Update] Success for ${email}`);
         return res.status(200).json(user.roadmaps);
     } catch (error) {
+        console.error(`[Roadmap Update Error] Catch Block:`, error.message);
         return res.status(500).json({ message: error.message });
     }
 };
