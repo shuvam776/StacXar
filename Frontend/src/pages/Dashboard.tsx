@@ -129,7 +129,7 @@ const Dashboard: React.FC = () => {
     const [dsaData, setDsaData] = useState<DsaDashboardData | null>(null);
     const [webDevData, setWebDevData] = useState<WebDevDashboardData | null>(null);
     const [loading, setLoading] = useState(true);
-    const [editMode, setEditMode] = useState<{ type: 'leetcode' | 'codeforces' | 'github'; value: string } | null>(null);
+    const [editMode, setEditMode] = useState<{ type: 'leetcode' | 'codeforces' | 'github'; value: string; section?: 'dsa' | 'stats' | 'webdev' } | null>(null);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
 
     const user = auth.currentUser;
@@ -162,20 +162,22 @@ const Dashboard: React.FC = () => {
         if (!editMode || !user) return;
         setSaveStatus('saving');
         try {
-            const res = await fetch(`${API_BASE}/profile/update-id`, {
+            const formData = new FormData();
+            formData.append(editMode.type === 'github' ? 'githubUsername' : (editMode.type === 'leetcode' ? 'leetcodeUsername' : 'codeforcesUsername'), editMode.value);
+
+            const res = await fetch(`${API_BASE}/profile/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'user-email': user.email || ''
                 },
-                body: JSON.stringify({ type: editMode.type, value: editMode.value })
+                body: formData
             });
             if (res.ok) {
                 setSaveStatus('success');
                 setTimeout(() => {
                     setEditMode(null);
                     setSaveStatus('idle');
-                    window.location.reload();
+                    fetchData(true); // Silent refresh
                 }, 1500);
             } else {
                 setSaveStatus('error');
@@ -237,18 +239,25 @@ const Dashboard: React.FC = () => {
                     <button
                         onClick={onSave}
                         disabled={status === 'saving' || isSuccess}
-                        className="flex-1 bg-primary text-black px-3 py-2 rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
+                        className="p-2 sm:px-4 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex flex-1 justify-center items-center gap-2 shadow-[0_0_10px_rgba(22,163,74,0.3)]"
+                        title="Save"
                     >
                         {status === 'saving' ? (
-                            <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                        ) : 'Save'}
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                            <>
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                                <span className="hidden sm:inline font-bold">Submit</span>
+                            </>
+                        )}
                     </button>
                     <button
                         onClick={onCancel}
                         disabled={status === 'saving' || isSuccess}
-                        className="px-3 py-2 rounded-lg text-sm font-bold text-gray-400 hover:text-white transition-colors border border-white/10 hover:border-white/30 disabled:opacity-50"
+                        className="p-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors disabled:opacity-50 flex flex-1 justify-center items-center"
+                        title="Cancel"
                     >
-                        Cancel
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </div>
             </div>
@@ -286,9 +295,10 @@ const Dashboard: React.FC = () => {
                     <h3 className="text-gray-400 font-bold mb-4">{title}</h3>
                     <button
                         onClick={() => onEdit(type)}
-                        className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-bold transition-colors"
+                        className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-bold transition-colors flex items-center gap-2"
                     >
-                        + Add ID
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        Add {type.charAt(0).toUpperCase() + type.slice(1)} ID
                     </button>
                 </>
             )}
@@ -381,8 +391,8 @@ const Dashboard: React.FC = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
                         {/* LeetCode Card with 3D effect */}
-                        {editMode?.type === 'leetcode' && !dsaData?.user.leetcodeUsername ? (
-                            <div className="p-6 bg-zinc-900/50 border border-white/10 rounded-3xl h-48">
+                        {editMode?.type === 'leetcode' && editMode?.section === 'dsa' ? (
+                            <div className="p-6 bg-zinc-900/50 border border-white/10 rounded-3xl h-48 flex items-center justify-center">
                                 <EditForm
                                     value={editMode.value}
                                     type="leetcode"
@@ -402,8 +412,8 @@ const Dashboard: React.FC = () => {
                                         </CardItem>
                                         <CardItem translateZ="50">
                                             <button
-                                                onClick={() => setEditMode({ type: 'leetcode', value: dsaData?.user?.leetcodeUsername || '' })}
-                                                className="text-gray-600 hover:text-white transition-colors opacity-0 group-hover/card:opacity-100"
+                                                onClick={() => setEditMode({ type: 'leetcode', value: dsaData?.user?.leetcodeUsername || '', section: 'dsa' })}
+                                                className="text-gray-600 hover:text-white transition-colors opacity-100 sm:opacity-0 group-hover/card:opacity-100"
                                                 title="Edit Username"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
@@ -436,8 +446,8 @@ const Dashboard: React.FC = () => {
                         )}
 
                         {/* Codeforces Card with 3D effect */}
-                        {editMode?.type === 'codeforces' && !dsaData?.user.codeforcesUsername ? (
-                            <div className="p-6 bg-zinc-900/50 border border-white/10 rounded-3xl h-48">
+                        {editMode?.type === 'codeforces' && editMode?.section === 'dsa' ? (
+                            <div className="p-6 bg-zinc-900/50 border border-white/10 rounded-3xl h-48 flex items-center justify-center">
                                 <EditForm
                                     value={editMode.value}
                                     type="codeforces"
@@ -457,7 +467,7 @@ const Dashboard: React.FC = () => {
                                         </CardItem>
                                         <CardItem translateZ="50">
                                             <button
-                                                onClick={() => setEditMode({ type: 'codeforces', value: dsaData?.user?.codeforcesUsername || '' })}
+                                                onClick={() => setEditMode({ type: 'codeforces', value: dsaData?.user?.codeforcesUsername || '', section: 'dsa' })}
                                                 className="text-gray-600 hover:text-white transition-colors opacity-0 group-hover/card:opacity-100"
                                                 title="Edit Username"
                                             >
@@ -524,13 +534,13 @@ const Dashboard: React.FC = () => {
                                 <StatCard label="Solved Problems" value={dsaData.stats.codeforces.solved} color="blue" />
                                 <div className="p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl group/cf-card hover:border-blue-500/30 transition-all flex flex-col justify-center items-center h-48 relative overflow-hidden">
                                     <button
-                                        onClick={() => setEditMode({ type: 'codeforces', value: dsaData?.user?.codeforcesUsername || '' })}
-                                        className="absolute top-4 right-4 text-gray-600 hover:text-white transition-colors opacity-0 group-hover:opacity-100 z-20"
+                                        onClick={() => setEditMode({ type: 'codeforces', value: dsaData?.user?.codeforcesUsername || '', section: 'stats' })}
+                                        className="absolute top-4 right-4 text-gray-600 hover:text-white transition-colors opacity-100 sm:opacity-0 group-hover:opacity-100 z-20"
                                         title="Edit Handle"
                                     >
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                     </button>
-                                    {editMode?.type === 'codeforces' ? (
+                                    {editMode?.type === 'codeforces' && editMode?.section === 'stats' ? (
                                         <div className="w-full relative z-10">
                                             <EditForm
                                                 value={editMode.value}
@@ -572,27 +582,8 @@ const Dashboard: React.FC = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
                         {/* GitHub Card with 3D effect */}
-                        {editMode?.type === 'github' && webDevData?.user.githubUsername ? (
-                            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-                                <div className="p-6 bg-zinc-900/50 border border-white/10 rounded-3xl h-48 flex items-center justify-center">
-                                    <EditForm
-                                        value={editMode.value}
-                                        type="github"
-                                        onCancel={handleEditCancel}
-                                        onChange={handleEditChange}
-                                        onSave={handleSaveId}
-                                        status={saveStatus}
-                                    />
-                                </div>
-                                {/* Keep the rest of the grid for visual stability if needed, or just show others */}
-                                <CardContainer className="inter-var py-0 opacity-20 pointer-events-none" containerClassName="py-0 block">
-                                    <CardBody className="bg-white/5 border-white/10 w-full md:w-[280px] h-48 rounded-3xl p-6 border shadow-2xl overflow-hidden flex flex-col justify-between">
-                                        <div />
-                                    </CardBody>
-                                </CardContainer>
-                            </div>
-                        ) : editMode?.type === 'github' && !webDevData?.user.githubUsername ? (
-                            <div className="p-6 bg-zinc-900/50 border border-white/10 rounded-3xl h-48 flex items-center justify-center w-full max-w-sm mb-8">
+                        {editMode?.type === 'github' ? (
+                            <div className="p-6 bg-zinc-900/50 border border-white/10 rounded-3xl h-48 flex items-center justify-center">
                                 <EditForm
                                     value={editMode.value}
                                     type="github"
@@ -622,8 +613,8 @@ const Dashboard: React.FC = () => {
                                         </CardItem>
                                         <CardItem translateZ="50">
                                             <button
-                                                onClick={() => setEditMode({ type: 'github', value: webDevData?.user?.githubUsername || '' })}
-                                                className="text-gray-600 hover:text-white transition-colors opacity-0 group-hover/card:opacity-100"
+                                                onClick={() => setEditMode({ type: 'github', value: webDevData?.user?.githubUsername || '', section: 'webdev' })}
+                                                className="text-gray-600 hover:text-white transition-colors opacity-100 sm:opacity-0 group-hover/card:opacity-100"
                                                 title="Edit Username"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>

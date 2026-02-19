@@ -9,7 +9,6 @@ import './styles/global.css';
 
 // Lazy Load Pages
 const Home = React.lazy(() => import('./pages/Home'));
-const Login = React.lazy(() => import('./pages/Login'));
 const DSARoadmap = React.lazy(() => import('./pages/DSARoadmap'));
 const WebDevRoadmap = React.lazy(() => import('./pages/WebDevRoadmap'));
 const AppDevRoadmap = React.lazy(() => import('./pages/AppDevRoadmap'));
@@ -41,7 +40,6 @@ function App() {
       <Suspense fallback={<LoadingSpinner />}>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
 
           {/* Protected Dashboard Routes */}
           <Route element={<DashboardLayout />}>

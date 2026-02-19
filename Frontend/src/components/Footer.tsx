@@ -3,7 +3,7 @@ import React from 'react';
 const Footer: React.FC = () => {
     return (
         <footer className="w-full bg-black/80 border-t border-white/10 py-12 text-white">
-            <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                 {/* Brand */}
                 <div>
                     <h3 className="text-xl font-bold mb-4">StacXar</h3>

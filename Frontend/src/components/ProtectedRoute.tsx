@@ -23,7 +23,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, user }) => {
         // Double check against auth.currentUser to avoid premature redirects during load
         // But since we are passing user prop, we will trust it for now.
         // A better approach is to check if we are *sure* the user is logged out.
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/" replace />;
     }
 
     return children;
