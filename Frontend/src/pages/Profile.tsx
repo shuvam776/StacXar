@@ -255,6 +255,23 @@ const Profile: React.FC = () => {
                     // Initialize independent states
                     setFullName(profileData.fullName || user.displayName || '');
                     setLinkedinUrl(profileData.linkedinUrl || '');
+                } else if (res.status === 404) {
+                    // Initialize a skeleton profile for new users
+                    const skeleton: UserProfile = {
+                        fullName: user.displayName || 'StacXar User',
+                        email: user.email || '',
+                        avatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`,
+                        leetcodeUsername: null,
+                        codeforcesUsername: null,
+                        codechefUsername: null,
+                        githubUsername: null,
+                        linkedinUrl: null,
+                        deployedProjects: []
+                    };
+                    setProfile(skeleton);
+                    setFormData(skeleton);
+                    setFullName(skeleton.fullName);
+                    setPlatformStats({});
                 }
             } catch (err) {
                 console.error("Profile fetch error", err);
@@ -266,14 +283,25 @@ const Profile: React.FC = () => {
     }, [user]);
 
     const handleSaveField = async (fieldKey: string) => {
-        if (!user || !profile) return;
+        if (!user) return;
         setSaving(true);
         setMessage(null);
 
         try {
             const uploadFormData = new FormData();
-            // Prepare the update data: start with current profile data
-            const updatedData = { ...profile, [fieldKey]: tempValue };
+            // Prepare the update data: start with current profile data or skeleton if null
+            const baseProfile = profile || {
+                fullName: user.displayName || 'New User',
+                email: user.email || '',
+                avatar: user.photoURL || '',
+                leetcodeUsername: null,
+                codeforcesUsername: null,
+                codechefUsername: null,
+                githubUsername: null,
+                linkedinUrl: null,
+                deployedProjects: []
+            };
+            const updatedData = { ...baseProfile, [fieldKey]: tempValue };
 
             // Special case for fullName if it was updated in header
             if (fieldKey === 'fullName') {
@@ -403,19 +431,31 @@ const Profile: React.FC = () => {
                                     <div className="flex gap-2">
                                         <button
                                             onClick={async () => {
-                                                if (!user || !profile) return;
+                                                if (!user) return;
                                                 setSaving(true);
                                                 try {
                                                     const uploadFormData = new FormData();
                                                     const file = (window as any)._tempAvatarFile;
                                                     if (file) uploadFormData.append('avatar', file);
 
-                                                    (Object.keys(profile) as Array<keyof UserProfile>).forEach(key => {
-                                                        if (key === 'ranking' || profile[key] === null || key === 'avatar') return;
+                                                    const baseProfile = profile || {
+                                                        fullName: user.displayName || 'StacXar User',
+                                                        email: user.email || '',
+                                                        avatar: user.photoURL || '',
+                                                        leetcodeUsername: null,
+                                                        codeforcesUsername: null,
+                                                        codechefUsername: null,
+                                                        githubUsername: null,
+                                                        linkedinUrl: null,
+                                                        deployedProjects: []
+                                                    };
+
+                                                    (Object.keys(baseProfile) as Array<keyof UserProfile>).forEach(key => {
+                                                        if (key === 'ranking' || (baseProfile as any)[key] === null || key === 'avatar') return;
                                                         if (key === 'deployedProjects') {
-                                                            uploadFormData.append(key, JSON.stringify(profile[key]));
+                                                            uploadFormData.append(key, JSON.stringify((baseProfile as any)[key]));
                                                         } else {
-                                                            uploadFormData.append(key, profile[key] as string);
+                                                            uploadFormData.append(key, (baseProfile as any)[key] as string);
                                                         }
                                                     });
 

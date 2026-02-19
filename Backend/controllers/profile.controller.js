@@ -81,38 +81,28 @@ exports.updateProfile = async (req, res) => {
             }
         }
 
-        // Fetch user first to check for missing required fields (legacy users)
-        const existingUser = await User.findOne({ email });
-        if (!existingUser) {
-            return res.status(404).json({ message: "User not found" });
-        }
+        // Prepare insert-only defaults
+        const setOnInsertData = {
+            username: email.split('@')[0] + "_" + Math.floor(Math.random() * 1000),
+            password: 'firebase-auth-user'
+        };
 
-        // Ensure required fields exist if they were missing (legacy users)
-        if (!existingUser.username && !updateData.username) {
-            const defaultUsername = email.split('@')[0] + "_" + Math.floor(Math.random() * 1000);
-            updateData.username = defaultUsername;
-        }
+        // Only set defaults for fullName/avatar if not already in updateData to avoid "ConflictingUpdateOperators"
+        if (!updateData.fullName) setOnInsertData.fullName = "StacXar User";
+        if (!updateData.avatar) setOnInsertData.avatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`;
 
-        if (!existingUser.fullName && !updateData.fullName) {
-            // If we have existingUser.fullName, we don't need to update it
-            // But if both are missing, use a placeholder
-            if (!existingUser.fullName) {
-                updateData.fullName = "StacXar User";
-            }
-        }
-
-        if (!existingUser.avatar && !updateData.avatar) {
-            const avatarSeed = updateData.username || existingUser.username || "default";
-            updateData.avatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`;
-        }
-
+        // Use findOneAndUpdate with upsert to create user if they don't exist
         const user = await User.findOneAndUpdate(
             { email },
-            { $set: updateData },
-            { new: true, runValidators: false }
+            {
+                $set: updateData,
+                $setOnInsert: setOnInsertData
+            },
+            { new: true, upsert: true, runValidators: false }
         ).select('-password -__v');
 
         if (!user) {
+            console.error("[ProfileUpdate] Database operation returned null");
             return res.status(500).json({ message: "Database update failed." });
         }
 
