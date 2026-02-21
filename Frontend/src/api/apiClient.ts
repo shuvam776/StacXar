@@ -2,8 +2,15 @@ import { auth } from '../firebase/firebase';
 
 const getApiBase = () => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL;
+
+    if (!baseUrl) {
+        console.error("❌ API Base URL is not defined! Please check your environment variables (VITE_API_BASE_URL or VITE_BACKEND_URL).");
+        // Fallback to a relative path or an obvious placeholder to avoid 'undefined' string in URL
+        return '/api';
+    }
+
     // Remove trailing slash if exists
-    const sanitizedBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    const sanitizedBase = baseUrl.toString().endsWith('/') ? baseUrl.toString().slice(0, -1) : baseUrl;
     return `${sanitizedBase}/api`;
 };
 
@@ -28,6 +35,8 @@ export const apiClient = {
             const searchParams = new URLSearchParams(options.params);
             url += `?${searchParams.toString()}`;
         }
+
+        console.log(`🚀 Fetching: ${url}`);
 
         const response = await fetch(url, {
             ...options,
