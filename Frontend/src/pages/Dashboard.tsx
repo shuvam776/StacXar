@@ -66,6 +66,30 @@ const InterviewTrajectory = React.memo(({ lc, cf, mastered, months }: { lc: numb
 
 InterviewTrajectory.displayName = 'InterviewTrajectory';
 
+const StartupReadiness = React.memo(({ readiness, nextMilestone }: { readiness: string, nextMilestone: string }) => {
+    return (
+        <motion.div
+            whileHover={{ scale: 1.02, rotateY: 5, rotateX: 5 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="md:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 relative overflow-hidden shadow-2xl"
+        >
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-green-500 opacity-50"></div>
+            <h3 className="text-lg font-bold mb-4">Startup Readiness</h3>
+            <div className="relative h-4 bg-white/5 rounded-full overflow-hidden mb-6">
+                <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: readiness === 'Startup-Ready' ? '90%' : (readiness === 'Product-Capable' ? '60%' : '30%') }}
+                    className="h-full bg-blue-500"
+                ></motion.div>
+            </div>
+            <div className="flex justify-between items-center text-xs font-mono text-gray-500 bg-black/30 p-3 rounded-lg">
+                <span>NEXT MILESTONE</span>
+                <span className="text-white font-bold">{nextMilestone || 'Build Portfolio'}</span>
+            </div>
+        </motion.div>
+    );
+});
+
 StartupReadiness.displayName = 'StartupReadiness';
 
 const AppReadiness = React.memo(({ readiness, nextMilestone }: { readiness: string, nextMilestone: string }) => {
