@@ -19,14 +19,15 @@ app.use(cors({
         const allowedOrigins = [
             'http://localhost:5173',
             'http://127.0.0.1:5173',
+            'http://localhost:8000',
+            'http://localhost:5000',
+            'https://stacxar.onrender.com',
             process.env.CORS_ORIGIN
         ].filter(Boolean);
 
         if (allowedOrigins.indexOf(origin) === -1 && process.env.NODE_ENV !== 'development') {
-            // In production restrict, in dev be loose (or just use *)
-            // For this user context, let's just allow all or the specific ones
-            // Fallback to allowing standard dev ports
-            return callback(null, true);
+            // In production restrict to known origins
+            return callback(new Error('Not allowed by CORS'), false);
         }
         return callback(null, true);
     },
@@ -43,11 +44,11 @@ const dashboardRoutes = require('./routes/dashboard.routes');
 const profileRoutes = require('./routes/profile.routes');
 
 
-app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/videos", videoRoutes);
-app.use("/api/v1/roadmap", roadmapRoutes);
-app.use("/api/v1/dashboard", dashboardRoutes);
-app.use("/api/v1/profile", profileRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/videos", videoRoutes);
+app.use("/api/roadmap", roadmapRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/profile", profileRoutes);
 
 const { errorHandler } = require('./middlewares/error.middleware');
 app.use(errorHandler);

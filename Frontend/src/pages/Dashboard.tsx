@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import { CardContainer, CardBody, CardItem } from "../components/ui/3d-card";
 import { SparklesCore } from "../components/ui/sparkles";
 import { CometCard } from "../components/ui/comet-card";
+import { apiClient } from '../api/apiClient';
 
 // --- Memoized Sub-components ---
 const InterviewTrajectory = React.memo(({ lc, cf, mastered, months }: { lc: number, cf: number, mastered: number, months: number }) => {
@@ -91,7 +92,7 @@ const StartupReadiness = React.memo(({ readiness, nextMilestone }: { readiness: 
 
 StartupReadiness.displayName = 'StartupReadiness';
 
-const API_BASE = import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api/v1` : 'http://localhost:5000/api/v1';
+
 
 // --- Interfaces ---
 interface LeetCodeStats { solved: number; easy: number; medium: number; hard: number; ranking: number; }
@@ -138,13 +139,13 @@ const Dashboard: React.FC = () => {
         if (!user) return;
         if (!silent) setLoading(true);
         try {
-            const [dsaRes, webRes] = await Promise.all([
-                fetch(`${API_BASE}/dashboard/dsa`, { headers: { 'user-email': user.email || '' } }),
-                fetch(`${API_BASE}/dashboard/webdev`, { headers: { 'user-email': user.email || '' } })
+            const [dsaData, webDevData] = await Promise.all([
+                apiClient.get('/dashboard/dsa'),
+                apiClient.get('/dashboard/webdev')
             ]);
 
-            if (dsaRes.ok) setDsaData(await dsaRes.json());
-            if (webRes.ok) setWebDevData(await webRes.json());
+            setDsaData(dsaData);
+            setWebDevData(webDevData);
 
         } catch (error) {
             console.error("Dashboard data fetch error", error);
@@ -165,23 +166,13 @@ const Dashboard: React.FC = () => {
             const formData = new FormData();
             formData.append(editMode.type === 'github' ? 'githubUsername' : (editMode.type === 'leetcode' ? 'leetcodeUsername' : 'codeforcesUsername'), editMode.value);
 
-            const res = await fetch(`${API_BASE}/profile/update`, {
-                method: 'POST',
-                headers: {
-                    'user-email': user.email || ''
-                },
-                body: formData
-            });
-            if (res.ok) {
-                setSaveStatus('success');
-                setTimeout(() => {
-                    setEditMode(null);
-                    setSaveStatus('idle');
-                    fetchData(true); // Silent refresh
-                }, 1500);
-            } else {
-                setSaveStatus('error');
-            }
+            await apiClient.post('/profile/update', formData);
+            setSaveStatus('success');
+            setTimeout(() => {
+                setEditMode(null);
+                setSaveStatus('idle');
+                fetchData(true); // Silent refresh
+            }, 1500);
         } catch (err) {
             setSaveStatus('error');
         }

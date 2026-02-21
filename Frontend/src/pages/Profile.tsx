@@ -5,8 +5,7 @@ import { auth } from '../firebase/firebase';
 import { useRoadmapProgress } from '../hooks/useRoadmapProgress';
 import Footer from '../components/Footer';
 import LoadingSpinner from '../components/LoadingSpinner';
-
-const API_BASE = import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api/v1` : 'http://localhost:5000/api/v1';
+import { apiClient } from '../api/apiClient';
 
 interface Project {
     title: string;
@@ -220,42 +219,33 @@ const Profile: React.FC = () => {
         const fetchProfile = async () => {
             if (!user) return;
             try {
-                const res = await fetch(`${API_BASE}/profile`, {
-                    headers: { 'user-email': user.email || '' }
-                });
-                if (res.ok) {
-                    const profileData = await res.json();
+                const profileData = await apiClient.get('/profile');
 
-                    // Fetch DSA & WebDev data for full stats & platform avatars
-                    const [dsaRes, webRes] = await Promise.all([
-                        fetch(`${API_BASE}/dashboard/dsa`, { headers: { 'user-email': user.email || '' } }),
-                        fetch(`${API_BASE}/dashboard/webdev`, { headers: { 'user-email': user.email || '' } })
-                    ]);
+                // Fetch DSA & WebDev data for full stats & platform avatars
+                const [dsaData, webData] = await Promise.all([
+                    apiClient.get('/dashboard/dsa'),
+                    apiClient.get('/dashboard/webdev')
+                ]);
 
-                    let combinedStats: any = {};
-                    if (dsaRes.ok) {
-                        const dsaData = await dsaRes.json();
-                        profileData.ranking = dsaData.ranking;
-                        combinedStats = { ...combinedStats, leetcode: dsaData.stats?.leetcode, codeforces: dsaData.stats?.codeforces };
-                    }
-                    if (webRes.ok) {
-                        const webData = await webRes.json();
-                        combinedStats = { ...combinedStats, github: webData.stats?.github };
-                    }
+                let combinedStats: any = {};
+                profileData.ranking = dsaData.ranking;
+                combinedStats = { ...combinedStats, leetcode: dsaData.stats?.leetcode, codeforces: dsaData.stats?.codeforces };
+                combinedStats = { ...combinedStats, github: webData.stats?.github };
 
-                    // LinkedIn stats from local profile data (always available if URL set)
-                    if (profileData.linkedinUrl) {
-                        combinedStats.linkedin = { avatar: profileData.avatar };
-                    }
+                // LinkedIn stats from local profile data (always available if URL set)
+                if (profileData.linkedinUrl) {
+                    combinedStats.linkedin = { avatar: profileData.avatar };
+                }
 
-                    setPlatformStats(combinedStats);
-                    setProfile(profileData);
-                    setFormData(profileData);
+                setPlatformStats(combinedStats);
+                setProfile(profileData);
+                setFormData(profileData);
 
-                    // Initialize independent states
-                    setFullName(profileData.fullName || user.displayName || '');
-                    setLinkedinUrl(profileData.linkedinUrl || '');
-                } else if (res.status === 404) {
+                // Initialize independent states
+                setFullName(profileData.fullName || user.displayName || '');
+                setLinkedinUrl(profileData.linkedinUrl || '');
+            } catch (err: any) {
+                if (err.message?.includes('404')) {
                     // Initialize a skeleton profile for new users
                     const skeleton: UserProfile = {
                         fullName: user.displayName || 'StacXar User',
@@ -272,9 +262,9 @@ const Profile: React.FC = () => {
                     setFormData(skeleton);
                     setFullName(skeleton.fullName);
                     setPlatformStats({});
+                } else {
+                    console.error("Profile fetch error", err);
                 }
-            } catch (err) {
-                console.error("Profile fetch error", err);
             } finally {
                 setLoading(false);
             }
@@ -320,20 +310,7 @@ const Profile: React.FC = () => {
                 }
             });
 
-            const res = await fetch(`${API_BASE}/profile/update`, {
-                method: 'POST',
-                headers: {
-                    'user-email': user.email || ''
-                },
-                body: uploadFormData
-            });
-
-            if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}));
-                throw new Error(errorData.message || `Server error (${res.status})`);
-            }
-
-            const updatedUser = await res.json();
+            const updatedUser = await apiClient.post('/profile/update', uploadFormData);
             setProfile({ ...updatedUser, ranking: profile?.ranking });
 
             // Update individual states
@@ -459,20 +436,10 @@ const Profile: React.FC = () => {
                                                         }
                                                     });
 
-                                                    const res = await fetch(`${API_BASE}/profile/update`, {
-                                                        method: 'POST',
-                                                        headers: { 'user-email': user.email || '' },
-                                                        body: uploadFormData
-                                                    });
-                                                    if (res.ok) {
-                                                        const updated = await res.json();
-                                                        setProfile({ ...updated, ranking: profile?.ranking });
-                                                        setEditingField(null);
-                                                        setMessage({ type: 'success', text: 'Avatar updated!' });
-                                                    } else {
-                                                        const errorData = await res.json().catch(() => ({}));
-                                                        throw new Error(errorData.message || 'Failed to update avatar.');
-                                                    }
+                                                    const updated = await apiClient.post('/profile/update', uploadFormData);
+                                                    setProfile({ ...updated, ranking: profile?.ranking });
+                                                    setEditingField(null);
+                                                    setMessage({ type: 'success', text: 'Avatar updated!' });
                                                 } catch (e: any) {
                                                     console.error(e);
                                                     setMessage({ type: 'error', text: e.message || 'Error updating avatar.' });
@@ -805,17 +772,10 @@ const Profile: React.FC = () => {
                                                         uploadFormData.append(key, formData[key] as string);
                                                     }
                                                 });
-                                                const res = await fetch(`${API_BASE}/profile/update`, {
-                                                    method: 'POST',
-                                                    headers: { 'user-email': user.email || '' },
-                                                    body: uploadFormData
-                                                });
-                                                if (res.ok) {
-                                                    const updated = await res.json();
-                                                    setProfile({ ...updated, ranking: profile?.ranking });
-                                                    setIsEditingProjects(false);
-                                                    setMessage({ type: 'success', text: 'Projects updated!' });
-                                                }
+                                                const updated = await apiClient.post('/profile/update', uploadFormData);
+                                                setProfile({ ...updated, ranking: profile?.ranking });
+                                                setIsEditingProjects(false);
+                                                setMessage({ type: 'success', text: 'Projects updated!' });
                                             } catch (e) { console.error(e); } finally { setSaving(false); }
                                         }}
                                         disabled={saving}
