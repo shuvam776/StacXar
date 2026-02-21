@@ -135,13 +135,56 @@ exports.getWebDevStats = async (req, res) => {
     }
 };
 
-// Deprecated (Keep for backward compat if frontend still calls /stats briefly, or user wants unified)
-// But implementing separate endpoints as requested in prompt is safer. 
-// I'll leave the old getDashboardStats if needed or replace it.
+exports.getAppDevStats = async (req, res) => {
+    try {
+        const email = req.user?.email || req.headers['user-email'];
+        if (!email) return res.status(401).json({ message: "Unauthorized" });
+
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Internal App Dev Progress
+        const appDevMap = user.roadmaps?.appdev ? Object.fromEntries(user.roadmaps.appdev.subtopics) : {};
+        const appDevMastered = Object.values(appDevMap).filter(st => st.mastery === 3).length;
+        const appDevTotalActive = Object.keys(appDevMap).length;
+
+        // Ranking Data
+        const rankData = await UserRank.findOne({ userId: user._id });
+        const totalUsers = await UserRank.countDocuments();
+
+        // Projection Logic
+        let readiness = "Mobile Learner";
+        if (appDevMastered > 3) readiness = "Feature-Capable";
+        if (appDevMastered > 8) readiness = "App-Ready";
+
+        return res.status(200).json({
+            user: {
+                githubUsername: user.githubUsername,
+                linkedinUrl: user.linkedinUrl
+            },
+            ranking: rankData ? {
+                rank: rankData.rankPosition,
+                totalUsers,
+                tier: rankData.tier,
+                score: rankData.finalScore
+            } : null,
+            internal: {
+                mastered: appDevMastered,
+                totalActive: appDevTotalActive,
+                projection: {
+                    readiness,
+                    nextMilestone: readiness === "Mobile Learner" ? "Build a Weather App" : "Publish to Play Store"
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("App Dev Stats Error:", error);
+        return res.status(500).json({ message: "Server error" });
+    }
+};
+
+// Deprecated
 exports.getDashboardStats = async (req, res) => {
-    // Wrapper around both for legacy or unified if needed
-    // Just return empty or implement properly if sticking to unified
-    // For now, I'll remove it or let it error if not used. 
-    // Wait, prompt requires endpoint changes. I'll rely on update to routes.
-    return res.status(410).json({ message: "Endpoint deprecated. Use /dsa or /webdev" });
+    return res.status(410).json({ message: "Endpoint deprecated. Use /dsa, /webdev, or /appdev" });
 };

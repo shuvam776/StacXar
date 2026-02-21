@@ -4,13 +4,14 @@ const getApiBase = () => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL;
 
     if (!baseUrl) {
-        console.error("❌ API Base URL is not defined! Please check your environment variables (VITE_API_BASE_URL or VITE_BACKEND_URL).");
-        // Fallback to a relative path or an obvious placeholder to avoid 'undefined' string in URL
+        console.warn("⚠️ API Base URL not found in environment variables (VITE_API_BASE_URL or VITE_BACKEND_URL).");
+        console.warn("🔗 Falling back to relative path '/api'. Cross-origin requests will fail if backend is on a different domain.");
         return '/api';
     }
 
+    const base = baseUrl.toString().trim();
     // Remove trailing slash if exists
-    const sanitizedBase = baseUrl.toString().endsWith('/') ? baseUrl.toString().slice(0, -1) : baseUrl;
+    const sanitizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
     return `${sanitizedBase}/api`;
 };
 

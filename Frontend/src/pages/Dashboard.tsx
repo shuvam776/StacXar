@@ -66,31 +66,33 @@ const InterviewTrajectory = React.memo(({ lc, cf, mastered, months }: { lc: numb
 
 InterviewTrajectory.displayName = 'InterviewTrajectory';
 
-const StartupReadiness = React.memo(({ readiness, nextMilestone }: { readiness: string, nextMilestone: string }) => {
+StartupReadiness.displayName = 'StartupReadiness';
+
+const AppReadiness = React.memo(({ readiness, nextMilestone }: { readiness: string, nextMilestone: string }) => {
     return (
         <motion.div
             whileHover={{ scale: 1.02, rotateY: 5, rotateX: 5 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
             className="md:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 relative overflow-hidden shadow-2xl"
         >
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-green-500 opacity-50"></div>
-            <h3 className="text-lg font-bold mb-4">Startup Readiness</h3>
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 opacity-50"></div>
+            <h3 className="text-lg font-bold mb-4">App Readiness</h3>
             <div className="relative h-4 bg-white/5 rounded-full overflow-hidden mb-6">
                 <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: readiness === 'Startup-Ready' ? '90%' : (readiness === 'Product-Capable' ? '60%' : '30%') }}
-                    className="h-full bg-blue-500"
+                    animate={{ width: readiness === 'App-Ready' ? '90%' : (readiness === 'Feature-Capable' ? '60%' : '30%') }}
+                    className="h-full bg-purple-500"
                 ></motion.div>
             </div>
             <div className="flex justify-between items-center text-xs font-mono text-gray-500 bg-black/30 p-3 rounded-lg">
                 <span>NEXT MILESTONE</span>
-                <span className="text-white font-bold">{nextMilestone || 'Build Portfolio'}</span>
+                <span className="text-white font-bold">{nextMilestone || 'Build Weather App'}</span>
             </div>
         </motion.div>
     );
 });
 
-StartupReadiness.displayName = 'StartupReadiness';
+AppReadiness.displayName = 'AppReadiness';
 
 
 
@@ -126,9 +128,16 @@ interface WebDevDashboardData {
     internal: { mastered: number; totalActive: number; projection: { readiness: string; nextMilestone: string; } };
 }
 
+interface AppDevDashboardData {
+    user: { githubUsername: string | null; linkedinUrl: string | null; };
+    ranking: RankingData | null;
+    internal: { mastered: number; totalActive: number; projection: { readiness: string; nextMilestone: string; } };
+}
+
 const Dashboard: React.FC = () => {
     const [dsaData, setDsaData] = useState<DsaDashboardData | null>(null);
     const [webDevData, setWebDevData] = useState<WebDevDashboardData | null>(null);
+    const [appDevData, setAppDevData] = useState<AppDevDashboardData | null>(null);
     const [loading, setLoading] = useState(true);
     const [editMode, setEditMode] = useState<{ type: 'leetcode' | 'codeforces' | 'github'; value: string; section?: 'dsa' | 'stats' | 'webdev' } | null>(null);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
@@ -139,13 +148,15 @@ const Dashboard: React.FC = () => {
         if (!user) return;
         if (!silent) setLoading(true);
         try {
-            const [dsaData, webDevData] = await Promise.all([
+            const [dsaData, webDevData, appDevData] = await Promise.all([
                 apiClient.get('/dashboard/dsa'),
-                apiClient.get('/dashboard/webdev')
+                apiClient.get('/dashboard/webdev'),
+                apiClient.get('/dashboard/appdev')
             ]);
 
             setDsaData(dsaData);
             setWebDevData(webDevData);
+            setAppDevData(appDevData);
 
         } catch (error) {
             console.error("Dashboard data fetch error", error);
@@ -661,6 +672,27 @@ const Dashboard: React.FC = () => {
                         <StartupReadiness
                             readiness={webDevData?.internal.projection.readiness || 'Beginner'}
                             nextMilestone={webDevData?.internal.projection.nextMilestone || 'Build Portfolio'}
+                        />
+                    </div>
+                </section>
+
+                {/* --- APP DEV INTELLIGENCE PANEL --- */}
+                <section className="mt-16">
+                    <div className="flex items-center gap-4 mb-6">
+                        <h2 className="text-2xl font-black flex items-center gap-2">
+                            <span className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></span>
+                            Mobile Engineering
+                        </h2>
+                        <div className="h-px bg-white/10 flex-grow"></div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+                        <StatCard label="Mastered" value={appDevData?.internal.mastered || 0} color="purple" />
+                        <StatCard label="Total Active" value={appDevData?.internal.totalActive || 0} color="pink" />
+
+                        <AppReadiness
+                            readiness={appDevData?.internal.projection.readiness || 'Beginner'}
+                            nextMilestone={appDevData?.internal.projection.nextMilestone || 'Build Weather App'}
                         />
                     </div>
                 </section>
