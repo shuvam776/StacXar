@@ -1,7 +1,7 @@
 import { auth } from '../firebase/firebase';
 
 const getApiBase = () => {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_BACKEND_URL;
     // Remove trailing slash if exists
     const sanitizedBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
     return `${sanitizedBase}/api`;
