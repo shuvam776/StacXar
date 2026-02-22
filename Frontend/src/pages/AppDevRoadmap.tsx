@@ -85,7 +85,7 @@ const AppDevRoadmap: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-black text-white selection:bg-primary selection:text-black">
+        <div className="min-h-screen bg-black text-white selection:bg-primary selection:text-white">
 
             <AnimatePresence mode="wait">
                 {!selectedTrack ? (
