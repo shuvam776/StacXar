@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import type { SubTopic, Resource } from '../../data/dsaData';
+import { Code2 } from 'lucide-react';
 
 interface ResourceSidebarProps {
     isOpen: boolean;
@@ -8,9 +10,12 @@ interface ResourceSidebarProps {
     subtopic: SubTopic | null;
     completedResourceIds: string[];
     onToggleResource: (subtopicId: string, resourceId: string, totalCount: number) => void;
+    showTrackerButton?: boolean;
 }
 
-const ResourceSidebar: React.FC<ResourceSidebarProps> = ({ isOpen, onClose, subtopic, completedResourceIds, onToggleResource }) => {
+const ResourceSidebar: React.FC<ResourceSidebarProps> = ({ isOpen, onClose, subtopic, completedResourceIds, onToggleResource, showTrackerButton = false }) => {
+    const navigate = useNavigate();
+
     // Optimization: Create Set for O(1) lookup
     const completedSet = useMemo(() => new Set(completedResourceIds), [completedResourceIds]);
 
@@ -70,6 +75,22 @@ const ResourceSidebar: React.FC<ResourceSidebarProps> = ({ isOpen, onClose, subt
                                 ))
                             )}
                         </div>
+
+                        {/* Tracker Navigation Button - only for DSA */}
+                        {showTrackerButton && (
+                            <div className="mt-12 pt-6 border-t border-white/10">
+                                <button
+                                    onClick={() => {
+                                        onClose();
+                                        navigate('/dsa/tracker');
+                                    }}
+                                    className="w-full py-4 rounded-xl flex items-center justify-center gap-2 bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-black font-bold transition-all group"
+                                >
+                                    <Code2 size={20} className="group-hover:scale-110 transition-transform" />
+                                    Practice Questions Tracker
+                                </button>
+                            </div>
+                        )}
                     </motion.div>
                 </>
             )}

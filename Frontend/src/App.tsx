@@ -5,11 +5,13 @@ import { auth } from './firebase/firebase';
 import DashboardLayout from './layouts/DashboardLayout';
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 import LoadingSpinner from './components/LoadingSpinner';
+import { TrackerProvider } from './context/TrackerContext';
 import './styles/global.css';
 
 // Lazy Load Pages
 const Home = React.lazy(() => import('./pages/Home'));
 const DSARoadmap = React.lazy(() => import('./pages/DSARoadmap'));
+const DSATracker = React.lazy(() => import('./pages/DSATracker'));
 const WebDevRoadmap = React.lazy(() => import('./pages/WebDevRoadmap'));
 const AppDevRoadmap = React.lazy(() => import('./pages/AppDevRoadmap'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -42,7 +44,11 @@ function App() {
           <Route path="/" element={<Home />} />
 
           {/* Protected Dashboard Routes */}
-          <Route element={<DashboardLayout />}>
+          <Route element={
+            <TrackerProvider>
+              <DashboardLayout />
+            </TrackerProvider>
+          }>
             <Route
               path="/dashboard"
               element={
@@ -56,6 +62,14 @@ function App() {
               element={
                 <ProtectedRoute user={user}>
                   <DSARoadmap />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dsa/tracker"
+              element={
+                <ProtectedRoute user={user}>
+                  <DSATracker />
                 </ProtectedRoute>
               }
             />

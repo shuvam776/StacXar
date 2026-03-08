@@ -26,7 +26,7 @@ const DashboardLayout: React.FC = () => {
     ];
 
     return (
-        <div className="flex h-screen bg-black text-white font-sans overflow-hidden">
+        <div className="flex h-screen bg-black text-white font-sans overflow-hidden selection:bg-primary/40 selection:text-white">
             {/* Sidebar (Desktop) */}
             <Sidebar />
 

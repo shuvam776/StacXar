@@ -85,7 +85,7 @@ const AppDevRoadmap: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-black text-white selection:bg-primary selection:text-white">
+        <div className="min-h-screen bg-black text-white">
 
             <AnimatePresence mode="wait">
                 {!selectedTrack ? (
@@ -94,21 +94,21 @@ const AppDevRoadmap: React.FC = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="pt-32 pb-24 px-8 max-w-7xl mx-auto"
+                        className="pt-24 sm:pt-32 pb-16 sm:pb-24 px-6 sm:px-8 max-w-7xl mx-auto"
                     >
                         <header className="text-center mb-16 relative">
                             <div className="absolute inset-0 -top-20 h-40 w-full bg-primary/10 blur-[120px] rounded-full pointer-events-none"></div>
-                            <h1 className="text-5xl md:text-8xl font-black tracking-tighter mb-6 uppercase italic">
+                            <h1 className="text-3xl sm:text-5xl md:text-8xl font-black tracking-tighter mb-6 uppercase italic">
                                 Choose Your <span className="text-primary">Track</span>
                             </h1>
-                            <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+                            <p className="text-gray-400 text-sm sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
                                 Select a path to master mobile development with premium resources and projects.
                             </p>
                         </header>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
                             <CardContainer className="inter-var">
-                                <CardBody className="bg-black/40 group/card  hover:shadow-2xl hover:shadow-primary/[0.1] border-white/10 w-auto sm:w-[30rem] h-auto rounded-3xl p-8 border">
+                                <CardBody className="bg-black/40 group/card  hover:shadow-2xl hover:shadow-primary/[0.1] border-white/10 w-full md:w-[30rem] h-auto rounded-3xl p-6 sm:p-8 border">
                                     <CardItem translateZ="50" className="text-xl font-bold text-white uppercase italic">
                                         Android Native
                                     </CardItem>
@@ -120,15 +120,15 @@ const AppDevRoadmap: React.FC = () => {
                                             <svg className="w-20 h-20 text-green-500" fill="currentColor" viewBox="0 0 24 24"><path d="M17.523 15.3414C17.0657 15.3414 16.6908 14.9665 16.6908 14.5092C16.6908 14.0519 17.0657 13.677 17.523 13.677C17.9803 13.677 18.3552 14.0519 18.3552 14.5092C18.3552 14.9665 17.9803 15.3414 17.523 15.3414ZM6.47702 15.3414C6.01974 15.3414 5.64478 14.9665 5.64478 14.5092C5.64478 14.0519 6.01974 13.677 6.47702 13.677C6.93431 13.677 7.30927 14.0519 7.30927 14.5092C7.30927 14.9665 6.93431 15.3414 6.47702 15.3414ZM17.886 10.3283L19.7915 7.02708C19.958 6.7381 19.8584 6.36868 19.5694 6.20235C19.2804 6.03554 18.9113 6.13511 18.7448 6.42436L16.8016 9.78913C15.3789 9.14364 13.7548 8.78442 12 8.78442C10.2452 8.78442 8.62107 9.14364 7.19838 9.78913L5.2552 6.42436C5.08869 6.13511 4.71958 6.03554 4.43058 6.20235C4.14132 6.36868 4.04212 6.7381 4.20863 7.02708L6.11403 10.3283C2.85966 12.1889 0.648193 15.5358 0.648193 19.4566H23.3519C23.3519 15.5358 21.1404 12.1889 17.886 10.3283Z" /></svg>
                                         </div>
                                     </CardItem>
-                                    <div className="flex justify-between items-center mt-12">
-                                        <CardItem translateZ={20} className="px-4 py-2 rounded-xl text-xs font-normal text-white">
+                                    <div className="flex justify-between items-center mt-12 w-full">
+                                        <CardItem translateZ={20} className="px-2 sm:px-4 py-2 rounded-xl text-[10px] sm:text-xs font-normal text-white">
                                             Kotlin & Compose
                                         </CardItem>
                                         <CardItem
                                             translateZ={20}
                                             as="button"
                                             onClick={() => setSelectedTrack(androidTrack)}
-                                            className="px-6 py-2 rounded-xl bg-white text-black font-bold text-sm uppercase"
+                                            className="px-4 sm:px-6 py-2 rounded-xl bg-white text-black font-bold text-xs sm:text-sm uppercase"
                                         >
                                             Start Track
                                         </CardItem>
@@ -137,7 +137,7 @@ const AppDevRoadmap: React.FC = () => {
                             </CardContainer>
 
                             <CardContainer className="inter-var">
-                                <CardBody className="bg-black/40 group/card  hover:shadow-2xl hover:shadow-primary/[0.1] border-white/10 w-auto sm:w-[30rem] h-auto rounded-3xl p-8 border">
+                                <CardBody className="bg-black/40 group/card  hover:shadow-2xl hover:shadow-primary/[0.1] border-white/10 w-full md:w-[30rem] h-auto rounded-3xl p-6 sm:p-8 border">
                                     <CardItem translateZ="50" className="text-xl font-bold text-white uppercase italic">
                                         React Native
                                     </CardItem>
@@ -149,15 +149,15 @@ const AppDevRoadmap: React.FC = () => {
                                             <svg className="w-20 h-20 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M23.34 11.23c-1.33-4.14-4.88-6.15-8.11-6.15-.36 0-.71.02-1.05.06-2.13-1.44-4.89-2.09-7.58-1.74a9.99 9.99 0 00-7.85 6.32c-1.33 4.14 0 8.5 2.89 10.45.36 1.43 1.13 2.76 2.21 3.82 2.62 2.53 6.42 3.19 9.61 1.74 3.29 1.45 7.15.82 9.81-1.74 1.08-1.06 1.85-2.39 2.21-3.82 2.89-1.95 4.22-6.31 2.86-10.45zm-14.88 4.21a4.99 4.99 0 01-4.99-4.99 4.99 4.99 0 014.99-4.99 4.99 4.99 0 014.99 4.99 4.99 4.99 0 01-4.99 4.99zm6.49-.01a4.99 4.99 0 01-4.99-4.99 4.99 4.99 0 014.99-4.99 4.99 4.99 0 014.99 4.99 4.99 4.99 0 01-4.99 4.99z" /></svg>
                                         </div>
                                     </CardItem>
-                                    <div className="flex justify-between items-center mt-12">
-                                        <CardItem translateZ={20} className="px-4 py-2 rounded-xl text-xs font-normal text-white">
+                                    <div className="flex justify-between items-center mt-12 w-full">
+                                        <CardItem translateZ={20} className="px-2 sm:px-4 py-2 rounded-xl text-[10px] sm:text-xs font-normal text-white">
                                             JS & Expo
                                         </CardItem>
                                         <CardItem
                                             translateZ={20}
                                             as="button"
                                             onClick={() => setSelectedTrack(reactNativeTrack)}
-                                            className="px-6 py-2 rounded-xl bg-white text-black font-bold text-sm uppercase"
+                                            className="px-6 py-2 rounded-xl bg-white text-black font-bold text-xs sm:text-sm uppercase"
                                         >
                                             Start Track
                                         </CardItem>
@@ -174,7 +174,7 @@ const AppDevRoadmap: React.FC = () => {
                         onAnimationComplete={() => updatePositions()}
                         className="min-h-screen bg-black text-white font-sans overflow-x-hidden"
                     >
-                        <div className="relative pt-32 pb-48 max-w-7xl mx-auto px-4" ref={containerRef}>
+                        <div className="relative pt-20 sm:pt-32 pb-24 sm:pb-48 max-w-7xl mx-auto px-4" ref={containerRef}>
                             <button
                                 onClick={() => setSelectedTrack(null)}
                                 className="mb-8 flex items-center gap-2 text-gray-500 hover:text-white transition-colors group"
@@ -187,7 +187,7 @@ const AppDevRoadmap: React.FC = () => {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.8 }}
-                                className="text-center mb-24 px-4 overflow-hidden rounded-3xl relative py-16 border border-white/5"
+                                className="text-center mb-12 sm:mb-24 px-4 overflow-hidden rounded-2xl sm:rounded-3xl relative py-12 sm:py-16 border border-white/5"
                             >
                                 <div className="absolute inset-0 z-0 text-white">
                                     <SparklesCore
@@ -201,10 +201,10 @@ const AppDevRoadmap: React.FC = () => {
                                     />
                                 </div>
                                 <div className="relative z-10">
-                                    <h1 className="text-4xl md:text-7xl font-black tracking-tighter mb-4 uppercase italic">
+                                    <h1 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter mb-4 uppercase italic">
                                         {selectedTrack.title.split(' ')[0]} <span className="text-primary italic">{selectedTrack.title.split(' ').slice(1).join(' ')}</span>
                                     </h1>
-                                    <p className="text-gray-400 text-sm md:text-lg max-w-xl mx-auto">{selectedTrack.description}</p>
+                                    <p className="text-gray-400 text-xs sm:text-sm md:text-lg max-w-xl mx-auto">{selectedTrack.description}</p>
                                 </div>
                             </motion.header>
 

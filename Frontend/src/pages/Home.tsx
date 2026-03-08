@@ -41,11 +41,11 @@ const Home: React.FC = () => {
     };
 
     return (
-        <div className="relative min-h-screen bg-[#050505] text-white flex flex-col font-sans selection:bg-primary/30 selection:text-primary overflow-x-hidden">
+        <div className="relative min-h-screen bg-[#050505] text-white flex flex-col font-sans selection:bg-primary/30 selection:text-white overflow-x-hidden">
             <Navbar user={user} />
 
             {/* Hero Section */}
-            <main className="flex-grow relative z-10 pt-32 pb-16 min-h-[90vh] flex items-center">
+            <main className="flex-grow relative z-10 pt-24 sm:pt-32 pb-12 sm:pb-16 min-h-[80vh] sm:min-h-[90vh] flex items-center">
                 <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
 
                     {/* Left: Content */}
@@ -55,7 +55,7 @@ const Home: React.FC = () => {
                         transition={{ duration: 0.8 }}
                         className="relative z-20 text-left"
                     >
-                        <h1 className="text-5xl md:text-7xl font-black leading-tight tracking-tighter mb-6 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
+                        <h1 className="text-4xl sm:text-5xl md:text-7xl font-black leading-tight tracking-tighter mb-6 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
                             Forge Your <br />
                             <span className="text-primary italic">Destiny.</span>
                         </h1>
@@ -94,7 +94,7 @@ const Home: React.FC = () => {
                     {[1, 2, 3, 4].map((i) => (
                         <div key={i} className="flex gap-12 px-6 items-center">
                             {['DATA STRUCTURES', 'ALGORITHMS', 'SYSTEMS', 'FRONTEND', 'BACKEND'].map((tech) => (
-                                <span key={tech} className="text-4xl md:text-6xl font-black text-white/5 hover:text-primary/20 transition-colors duration-500">{tech}</span>
+                                <span key={tech} className="text-2xl sm:text-4xl md:text-6xl font-black text-white/5 hover:text-primary/20 transition-colors duration-500">{tech}</span>
                             ))}
                         </div>
                     ))}

@@ -37,7 +37,6 @@ export const apiClient = {
             url += `?${searchParams.toString()}`;
         }
 
-        console.log(`🚀 Fetching: ${url}`);
 
         const response = await fetch(url, {
             ...options,

@@ -8,6 +8,7 @@ import { CardContainer, CardBody, CardItem } from "../components/ui/3d-card";
 import { SparklesCore } from "../components/ui/sparkles";
 import { CometCard } from "../components/ui/comet-card";
 import { apiClient } from '../api/apiClient';
+import DSATrackerPanel from '../components/dashboard/DSATrackerPanel';
 
 // --- Memoized Sub-components ---
 const InterviewTrajectory = React.memo(({ lc, cf, mastered, months }: { lc: number, cf: number, mastered: number, months: number }) => {
@@ -32,11 +33,11 @@ const InterviewTrajectory = React.memo(({ lc, cf, mastered, months }: { lc: numb
         <motion.div
             whileHover={{ scale: 1.02, rotateY: 5, rotateX: 5 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="md:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 relative overflow-hidden shadow-2xl"
+            className="col-span-1 md:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 relative overflow-hidden shadow-2xl h-64 sm:h-72 flex flex-col justify-between w-full"
         >
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-yellow-500 to-red-500 opacity-50"></div>
             <h3 className="text-lg font-bold mb-4">Interview Trajectory</h3>
-            <div className="flex items-end gap-2 h-24 mb-4">
+            <div className="flex flex-1 items-end gap-2 mb-4 w-full">
                 <div className="relative w-full h-full">
                     <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full overflow-visible">
                         <defs>
@@ -56,9 +57,9 @@ const InterviewTrajectory = React.memo(({ lc, cf, mastered, months }: { lc: numb
                     </div>
                 </div>
             </div>
-            <div className="flex justify-between items-center text-xs font-mono text-gray-500 bg-black/30 p-3 rounded-lg">
-                <span>ESTIMATED READINESS</span>
-                <span className="text-white font-bold">{months || 6} Months</span>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-[10px] sm:text-xs font-mono text-gray-500 bg-black/30 p-2 sm:p-3 rounded-lg overflow-hidden shrink-0">
+                <span className="shrink-0 truncate">ESTIMATED READINESS</span>
+                <span className="text-white font-bold truncate w-full sm:text-right">{months || 6} Months</span>
             </div>
         </motion.div>
     );
@@ -71,7 +72,7 @@ const StartupReadiness = React.memo(({ readiness, nextMilestone }: { readiness: 
         <motion.div
             whileHover={{ scale: 1.02, rotateY: 5, rotateX: 5 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="md:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 relative overflow-hidden shadow-2xl"
+            className="col-span-1 md:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 relative overflow-hidden shadow-2xl h-64 sm:h-72 flex flex-col justify-between w-full"
         >
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-green-500 opacity-50"></div>
             <h3 className="text-lg font-bold mb-4">Startup Readiness</h3>
@@ -82,9 +83,9 @@ const StartupReadiness = React.memo(({ readiness, nextMilestone }: { readiness: 
                     className="h-full bg-blue-500"
                 ></motion.div>
             </div>
-            <div className="flex justify-between items-center text-xs font-mono text-gray-500 bg-black/30 p-3 rounded-lg">
-                <span>NEXT MILESTONE</span>
-                <span className="text-white font-bold">{nextMilestone || 'Build Portfolio'}</span>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-[10px] sm:text-xs font-mono text-gray-500 bg-black/30 p-2 sm:p-3 rounded-lg overflow-hidden">
+                <span className="shrink-0 truncate">NEXT MILESTONE</span>
+                <span className="text-white font-bold truncate w-full sm:text-right">{nextMilestone || 'Build Portfolio'}</span>
             </div>
         </motion.div>
     );
@@ -97,7 +98,7 @@ const AppReadiness = React.memo(({ readiness, nextMilestone }: { readiness: stri
         <motion.div
             whileHover={{ scale: 1.02, rotateY: 5, rotateX: 5 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="md:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 relative overflow-hidden shadow-2xl"
+            className="col-span-1 md:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 relative overflow-hidden shadow-2xl h-64 sm:h-72 flex flex-col justify-between w-full"
         >
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 opacity-50"></div>
             <h3 className="text-lg font-bold mb-4">App Readiness</h3>
@@ -108,9 +109,9 @@ const AppReadiness = React.memo(({ readiness, nextMilestone }: { readiness: stri
                     className="h-full bg-purple-500"
                 ></motion.div>
             </div>
-            <div className="flex justify-between items-center text-xs font-mono text-gray-500 bg-black/30 p-3 rounded-lg">
-                <span>NEXT MILESTONE</span>
-                <span className="text-white font-bold">{nextMilestone || 'Build Weather App'}</span>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-[10px] sm:text-xs font-mono text-gray-500 bg-black/30 p-2 sm:p-3 rounded-lg overflow-hidden">
+                <span className="shrink-0 truncate">NEXT MILESTONE</span>
+                <span className="text-white font-bold truncate w-full sm:text-right">{nextMilestone || 'Build Weather App'}</span>
             </div>
         </motion.div>
     );
@@ -163,7 +164,7 @@ const Dashboard: React.FC = () => {
     const [webDevData, setWebDevData] = useState<WebDevDashboardData | null>(null);
     const [appDevData, setAppDevData] = useState<AppDevDashboardData | null>(null);
     const [loading, setLoading] = useState(true);
-    const [editMode, setEditMode] = useState<{ type: 'leetcode' | 'github'; value: string; section?: 'dsa' | 'stats' | 'webdev' } | null>(null);
+    const [editMode, setEditMode] = useState<{ type: 'leetcode' | 'github' | 'codeforces'; value: string; section?: 'dsa' | 'stats' | 'webdev' } | null>(null);
     const [cfEditMode, setCfEditMode] = useState<{ value: string; section?: 'dsa' | 'stats' } | null>(null);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
 
@@ -191,7 +192,6 @@ const Dashboard: React.FC = () => {
     };
 
     useEffect(() => {
-        console.log("Dashboard mounted, fetching initial data for:", user?.email);
         fetchData();
     }, [user]);
 
@@ -259,12 +259,12 @@ const Dashboard: React.FC = () => {
                 className="lg:col-span-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 relative overflow-hidden h-72 group"
             >
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent pointer-events-none"></div>
-                <div className="flex justify-between items-start mb-8 relative z-10">
-                    <div>
-                        <h3 className="text-xl font-black text-white italic uppercase tracking-tighter">CP Performance Trajectory</h3>
-                        <p className="text-gray-500 text-xs font-bold font-mono">ESTIMATED RATING TREND & SOLVE VELOCITY</p>
+                <div className="flex flex-col sm:flex-row justify-between items-start mb-8 relative z-10 gap-4 sm:gap-2">
+                    <div className="w-full sm:w-auto min-w-0 overflow-hidden pr-2">
+                        <h3 className="text-lg sm:text-xl font-black text-white italic uppercase tracking-tighter truncate">CP Performance Trajectory</h3>
+                        <p className="text-gray-500 text-[9px] sm:text-xs font-bold font-mono truncate w-full">ESTIMATED RATING TREND & SOLVE VELOCITY</p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-left sm:text-right shrink-0">
                         <div className="text-3xl font-black text-blue-400">{rating || 'UR'}</div>
                         <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Current Rating</div>
                     </div>
@@ -298,16 +298,16 @@ const Dashboard: React.FC = () => {
                     </svg>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-white/5 relative z-10">
-                    <div className="text-center">
-                        <div className="text-[10px] font-bold text-gray-500 uppercase">Solved</div>
-                        <div className="text-lg font-black text-white">{solved}</div>
+                <div className="grid grid-cols-[1fr_1fr_auto] gap-2 sm:gap-4 mt-8 pt-6 border-t border-white/5 relative z-10 items-center">
+                    <div className="text-center overflow-hidden">
+                        <div className="text-[9px] sm:text-[10px] font-bold text-gray-500 uppercase truncate">Solved</div>
+                        <div className="text-base sm:text-lg font-black text-white truncate">{solved}</div>
                     </div>
-                    <div className="text-center">
-                        <div className="text-[10px] font-bold text-gray-500 uppercase">Velocity</div>
-                        <div className="text-lg font-black text-green-500">+{Math.round(solved / 10)}%</div>
+                    <div className="text-center overflow-hidden">
+                        <div className="text-[9px] sm:text-[10px] font-bold text-gray-500 uppercase truncate">Velocity</div>
+                        <div className="text-base sm:text-lg font-black text-green-500 truncate">+{Math.round(solved / 10)}%</div>
                     </div>
-                    <div className="text-right flex items-center justify-end">
+                    <div className="text-right flex items-center justify-end shrink-0">
                         <button
                             onClick={() => setCfEditMode({ value: dsaData?.user.codeforcesUsername || '', section: 'stats' })}
                             className="p-3 bg-white/5 rounded-2xl hover:bg-white/10 text-gray-400 hover:text-white transition-all transform hover:rotate-12 border border-white/5"
@@ -397,9 +397,6 @@ const Dashboard: React.FC = () => {
         onChange: (val: string) => void,
         saveStatus: 'idle' | 'saving' | 'success' | 'error'
     }) => {
-        const currentEdit = isCf ? cfEditMode : editMode;
-        const currentType = type;
-
         return (
             <motion.div
                 whileHover={{ scale: 1.02, rotateY: 5, rotateX: 5 }}
@@ -444,9 +441,9 @@ const Dashboard: React.FC = () => {
     ));
 
     return (
-        <div className="min-h-screen bg-black text-white selection:bg-primary selection:text-black">
+        <div className="min-h-screen bg-black text-white overflow-x-hidden w-full max-w-[100vw] flex flex-col">
 
-            <div className="pt-32 pb-24 px-8 max-w-7xl mx-auto">
+            <div className="pt-20 sm:pt-24 lg:pt-32 pb-16 sm:pb-24 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
                 {/* Dashboard Header with Sparkles */}
                 <div className="relative h-48 md:h-64 w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-3xl mb-8 border border-white/10">
                     <div className="w-full absolute inset-0 h-screen">
@@ -508,12 +505,23 @@ const Dashboard: React.FC = () => {
 
                 {/* --- DSA INTELLIGENCE PANEL --- */}
                 <section className="mb-16">
-                    <div className="flex items-center gap-4 mb-6">
-                        <h2 className="text-2xl font-black flex items-center gap-2">
-                            <span className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></span>
-                            DSA Intelligence
-                        </h2>
-                        <div className="h-px bg-white/10 flex-grow"></div>
+                    <div className="flex items-center justify-between gap-4 mb-6">
+                        <div className="flex items-center gap-4 grow">
+                            <h2 className="text-2xl font-black flex items-center gap-2 shrink-0">
+                                <span className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></span>
+                                DSA Intelligence
+                            </h2>
+                            <div className="h-px bg-white/10 grow hidden sm:block"></div>
+                        </div>
+                        <button
+                            onClick={() => {
+                                document.getElementById('practice-tracker-panel')?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                            className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300 text-xs sm:text-sm hover:bg-white/10 hover:text-white font-bold transition-all shrink-0 whitespace-nowrap"
+                        >
+                            Go to Tracker
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+                        </button>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
@@ -806,6 +814,11 @@ const Dashboard: React.FC = () => {
                             nextMilestone={appDevData?.internal.projection.nextMilestone || 'Build Weather App'}
                         />
                     </div>
+                </section>
+
+                {/* --- DSA PRACTICE TRACKER PANEL --- */}
+                <section className="mt-16 relative">
+                    <DSATrackerPanel />
                 </section>
 
             </div >

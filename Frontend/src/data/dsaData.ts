@@ -411,17 +411,22 @@ export const dsaTopics: Topic[] = [
             {
                 id: 'two-pointer',
                 title: 'Two Pointers',
-                description: 'Optimization for linear search.',
+                description: 'Optimization for linear search. (Includes Sort Colors, First Missing Positive & Find Duplicate Number)',
                 resources: [
-                    { id: 'r12-1', title: 'Two Pointer Technique', type: 'article', url: 'https://www.geeksforgeeks.org/two-pointers-technique/' }
+                    { id: 'r12-1', title: 'Two Pointer Technique', type: 'article', url: 'https://www.geeksforgeeks.org/two-pointers-technique/' },
+                    { id: 'arr-2', title: 'Find the Duplicate Number', type: 'leetcode', url: 'https://leetcode.com/problems/find-the-duplicate-number/' },
+                    { id: 'arr-3', title: 'Remove Duplicates from Sorted Array', type: 'leetcode', url: 'https://leetcode.com/problems/remove-duplicates-from-sorted-array/' },
+                    { id: 'arr-18', title: 'First Missing Positive', type: 'leetcode', url: 'https://leetcode.com/problems/first-missing-positive/' }
                 ]
             },
             {
                 id: 'monotonic-stack',
                 title: 'Monotonic Stack',
-                description: 'Nearest smaller/greater element.',
+                description: 'Nearest smaller/greater element. (Includes Largest Rectangle in Histogram & Subarray Sum Equals K)',
                 resources: [
-                    { id: 'r12-2', title: 'Monotonic Stack Intro', type: 'article', url: 'https://www.geeksforgeeks.org/introduction-to-monotonic-stack-2/' }
+                    { id: 'r12-2', title: 'Monotonic Stack Intro', type: 'article', url: 'https://www.geeksforgeeks.org/introduction-to-monotonic-stack-2/' },
+                    { id: 'arr-10', title: 'Subarray Sum Equals K', type: 'leetcode', url: 'https://leetcode.com/problems/subarray-sum-equals-k/' },
+                    { id: 'arr-19', title: 'Largest Rectangle in Histogram', type: 'leetcode', url: 'https://leetcode.com/problems/largest-rectangle-in-histogram/' }
                 ]
             }
         ]

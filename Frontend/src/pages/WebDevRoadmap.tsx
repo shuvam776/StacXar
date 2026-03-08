@@ -83,7 +83,7 @@ const WebDevRoadmap: React.FC = () => {
         <div className="min-h-screen bg-black text-white font-sans overflow-x-hidden" ref={containerRef}>
 
             <motion.div
-                className="relative pt-24 pb-48 max-w-7xl mx-auto px-4"
+                className="relative pt-20 sm:pt-24 pb-24 sm:pb-48 max-w-7xl mx-auto px-4"
                 onAnimationComplete={() => updatePositions()}
             >
                 {/* Header */}
@@ -91,7 +91,7 @@ const WebDevRoadmap: React.FC = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
-                    className="text-center mb-24 px-4 overflow-hidden rounded-3xl relative py-16 border border-white/5"
+                    className="text-center mb-12 sm:mb-24 px-4 overflow-hidden rounded-2xl sm:rounded-3xl relative py-12 sm:py-16 border border-white/5"
                 >
                     <div className="absolute inset-0 z-0">
                         <SparklesCore
@@ -104,11 +104,11 @@ const WebDevRoadmap: React.FC = () => {
                             particleColor="#FFFFFF"
                         />
                     </div>
-                    <div className="relative z-10">
-                        <h1 className="text-4xl md:text-7xl font-black tracking-tighter mb-4 uppercase italic">
+                    <div className="relative z-10 w-full px-2">
+                        <h1 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter mb-4 uppercase italic break-words">
                             Web Dev <span className="text-primary italic uppercase">Journey</span>
                         </h1>
-                        <p className="text-gray-400 text-sm md:text-lg max-w-xl mx-auto">Master Modern Development Step by Step.</p>
+                        <p className="text-gray-400 text-xs sm:text-sm md:text-lg max-w-xl mx-auto">Master Modern Development Step by Step.</p>
                     </div>
                 </motion.header>
 

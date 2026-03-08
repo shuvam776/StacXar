@@ -358,7 +358,7 @@ const Profile: React.FC = () => {
     if (loading) return <LoadingSpinner />;
 
     return (
-        <div className="min-h-screen bg-black text-white selection:bg-primary selection:text-black">
+        <div className="min-h-screen bg-black text-white">
 
             <main className="max-w-7xl mx-auto px-6 pt-32 pb-24">
                 {/* Header Section */}
@@ -370,7 +370,7 @@ const Profile: React.FC = () => {
                         <div className="relative group shrink-0">
                             <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-zinc-900 border border-white/10 overflow-hidden shadow-2xl relative z-10 transition-transform group-hover:scale-105">
                                 {profile?.avatar ? (
-                                    <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                    <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover rounded-3xl" />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-700">
                                         <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" /></svg>
@@ -507,11 +507,11 @@ const Profile: React.FC = () => {
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center justify-center md:justify-start gap-3 group/name cursor-default">
-                                        <h2 className="text-2xl md:text-4xl font-black tracking-tight truncate max-w-[250px] md:max-w-none">{fullName}</h2>
+                                    <div className="flex items-center justify-center md:justify-start gap-2 group/name cursor-default w-full">
+                                        <h2 className="text-2xl md:text-4xl font-black tracking-tight truncate max-w-full">{fullName}</h2>
                                         <button
                                             onClick={() => handleEditStart('fullName', fullName)}
-                                            className="p-1.5 text-gray-100 hover:text-primary transition-all bg-zinc-800 rounded-lg border border-white/10 hover:border-primary/50 shadow-md"
+                                            className="p-1.5 text-gray-100 hover:text-primary transition-all bg-zinc-800 rounded-lg border border-white/10 hover:border-primary/50 shadow-md shrink-0"
                                             title="Edit Name"
                                         >
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
@@ -519,7 +519,7 @@ const Profile: React.FC = () => {
                                     </div>
                                 )}
                                 {profile?.ranking && (
-                                    <span className="bg-primary text-black text-[10px] font-black px-2 py-1 rounded uppercase tracking-tighter shrink-0">
+                                    <span className="bg-primary text-black text-[10px] font-black px-2 py-1 rounded uppercase tracking-tighter shrink-0 mb-2">
                                         {profile.ranking.tier}
                                     </span>
                                 )}
