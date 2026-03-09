@@ -42,8 +42,25 @@ const SolutionViewerModal: React.FC<SolutionViewerModalProps> = ({ isOpen, onClo
 
     if (!question) return null;
 
-    const currentSolution = solutions.find(s => s.language === activeLang);
-    const activeMonacoLang = LANGUAGES.find(l => l.id === activeLang)?.monacoId || 'cpp';
+    const currentSolution = React.useMemo(() =>
+        solutions.find(s => s.language === activeLang),
+        [solutions, activeLang]
+    );
+
+    const activeMonacoLang = React.useMemo(() =>
+        LANGUAGES.find(l => l.id === activeLang)?.monacoId || 'cpp',
+        [activeLang]
+    );
+
+    const editorOptions = React.useMemo(() => ({
+        readOnly: true,
+        minimap: { enabled: false },
+        fontSize: 14,
+        padding: { top: 20 },
+        scrollBeyondLastLine: false,
+        wordWrap: 'on' as const,
+        domReadOnly: true,
+    }), []);
 
     return (
         <AnimatePresence>
@@ -135,15 +152,7 @@ const SolutionViewerModal: React.FC<SolutionViewerModalProps> = ({ isOpen, onClo
                                     theme="vs-dark"
                                     language={activeMonacoLang}
                                     value={currentSolution.code}
-                                    options={{
-                                        readOnly: true,
-                                        minimap: { enabled: false },
-                                        fontSize: 14,
-                                        padding: { top: 20 },
-                                        scrollBeyondLastLine: false,
-                                        wordWrap: 'on',
-                                        domReadOnly: true,
-                                    }}
+                                    options={editorOptions}
                                 />
                             )}
                         </div>

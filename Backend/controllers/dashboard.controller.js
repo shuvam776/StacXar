@@ -18,17 +18,28 @@ exports.getDSAStats = async (req, res) => {
         const dsaTotalActive = Object.keys(dsaMap).length;
 
         // External Stats & Ranking
-        const [leetcode, codeforces, rankData] = await Promise.all([
-            rankService.fetchLeetCodeStats(user.leetcodeUsername),
-            rankService.fetchCodeforcesStats(user.codeforcesUsername),
-            UserRank.findOne({ userId: user._id })
-        ]);
-
+        const rankData = await UserRank.findOne({ userId: user._id });
         const totalUsers = await UserRank.countDocuments();
 
-        // Trigger background recompute if needed
-        if (!rankData || (Date.now() - new Date(rankData.updatedAt).getTime() > 1000 * 60 * 60)) {
+        let leetcode = null;
+        let codeforces = null;
+
+        if (rankData) {
+            // Use cached data
+            leetcode = rankData.leetcode?.stats || null;
+            codeforces = rankData.codeforces?.stats || null;
+        }
+
+        // Only fetch if data is missing or very old
+        const isStale = !rankData || (Date.now() - new Date(rankData.updatedAt).getTime() > 1000 * 60 * 60);
+
+        if (isStale || !leetcode || !codeforces) {
+            // Trigger background recompute
             rankService.recomputeUserRank(user).catch(err => console.error("BG Rank Recompute Error:", err));
+
+            // If we don't even have cached data, we might need to fetch synchronously once
+            // but to keep it fast, let's just return what we have (even if null) 
+            // and let the next refresh show the data.
         }
 
         // Projection Logic
@@ -84,13 +95,21 @@ exports.getWebDevStats = async (req, res) => {
         const webDevMastered = Object.values(webDevMap).filter(st => st.mastery === 3).length;
         const webDevTotalActive = Object.keys(webDevMap).length;
 
-        // GitHub / Projects
-        const github = await rankService.fetchGitHubStats(user.githubUsername);
-        const deployedProjects = user.deployedProjects || [];
-
-        // Ranking Data
+        // GitHub / Projects & Ranking Data
         const rankData = await UserRank.findOne({ userId: user._id });
         const totalUsers = await UserRank.countDocuments();
+
+        let github = null;
+        if (rankData) {
+            github = rankData.github?.stats || null;
+        }
+
+        // Trigger background recompute if needed
+        if (!rankData || (Date.now() - new Date(rankData.updatedAt).getTime() > 1000 * 60 * 60)) {
+            rankService.recomputeUserRank(user).catch(err => console.error("BG Rank Recompute Error:", err));
+        }
+
+        const deployedProjects = user.deployedProjects || [];
 
         // Projection Logic
         let readiness = "Beginner Builder";

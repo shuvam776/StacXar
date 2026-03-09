@@ -15,6 +15,15 @@ interface Rect {
     height: number;
 }
 
+const getMasteryColor = (level: MasteryLevel) => {
+    switch (level) {
+        case 3: return '#3b82f6'; // Blue
+        case 2: return '#fbbf24'; // Yellow
+        case 1: return '#22c55e'; // Green
+        default: return '#52525b'; // Zinc-600
+    }
+};
+
 const DSARoadmap: React.FC = () => {
     // 1. Data Setup - Memoized to prevent recalculation on every render
     const allSubtopics = useMemo(() => dsaTopics.flatMap(t => t.subtopics), []);
@@ -58,22 +67,10 @@ const DSARoadmap: React.FC = () => {
         return () => observer.disconnect();
     }, [updatePositions, loading]); // Redo if loading finishes (content might shift)
 
-    // 4. Helper to get mastery from state
     const getMastery = useCallback((subtopicId: string): MasteryLevel => {
         return roadmapState[subtopicId]?.mastery || 0;
     }, [roadmapState]);
 
-    const getMasteryColor = (level: MasteryLevel) => {
-        switch (level) {
-            case 3: return '#3b82f6'; // Blue
-            case 2: return '#fbbf24'; // Yellow
-            case 1: return '#22c55e'; // Green
-            default: return '#52525b'; // Zinc-600
-        }
-    };
-
-    // Show loading spinner only for the initial data fetch if required, 
-    // but try to avoid blocking if we have cached or local state
     if (loading && Object.keys(roadmapState).length === 0) {
         return <LoadingSpinner />;
     }
@@ -98,7 +95,7 @@ const DSARoadmap: React.FC = () => {
                             background="transparent"
                             minSize={0.4}
                             maxSize={1}
-                            particleDensity={100}
+                            particleDensity={50}
                             className="w-full h-full"
                             particleColor="#FFFFFF"
                         />
@@ -123,7 +120,8 @@ const DSARoadmap: React.FC = () => {
 
                             if (!startRect || !endRect) return null;
 
-                            const isDesktop = window.innerWidth >= 768;
+                            // Memoize expensive layout decisions
+                            const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
                             const isStartLeft = index % 2 === 0;
 
                             let startPt = { x: startRect.x + startRect.width / 2, y: startRect.y + startRect.height };

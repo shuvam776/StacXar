@@ -7,6 +7,51 @@ import SolutionViewerModal from '../components/dashboard/SolutionViewerModal';
 
 type DifficultyFilter = 'All' | 'Easy' | 'Medium' | 'Hard';
 
+const SidebarContent = React.memo(({
+    activeTopicId,
+    completedIds,
+    onSelectTopic
+}: {
+    activeTopicId: string,
+    completedIds: Set<string>,
+    onSelectTopic: (id: string) => void
+}) => (
+    <>
+        <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Topics</h2>
+        <div className="space-y-2">
+            {dsaTrackerData.map(topic => {
+                const done = topic.questions.filter(q => completedIds.has(q.id)).length;
+                const pct = Math.round((done / topic.questions.length) * 100);
+                const isActive = topic.id === activeTopicId;
+                return (
+                    <motion.button
+                        key={topic.id}
+                        onClick={() => onSelectTopic(topic.id)}
+                        whileHover={{ x: 4 }}
+                        className={`w-full text-left px-4 py-3 rounded-xl border transition-all ${isActive
+                            ? 'bg-primary/10 border-primary/40 text-primary'
+                            : 'bg-white/[0.03] border-white/5 text-gray-300 hover:border-white/20 hover:text-white'
+                            }`}
+                    >
+                        <div className="flex justify-between items-center mb-1">
+                            <span className="text-sm font-semibold">{topic.title}</span>
+                            <span className="text-xs text-gray-500">{done}/{topic.questions.length}</span>
+                        </div>
+                        <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-primary rounded-full transition-all"
+                                style={{ width: `${pct}%` }}
+                            />
+                        </div>
+                    </motion.button>
+                );
+            })}
+        </div>
+    </>
+));
+
+SidebarContent.displayName = 'SidebarContent';
+
 const DSATracker: React.FC = () => {
     const navigate = useNavigate();
 
@@ -25,74 +70,39 @@ const DSATracker: React.FC = () => {
     );
 
     const filteredQuestions = useMemo(() => {
+        const query = searchQuery.toLowerCase();
         return activeTopic.questions.filter(q => {
-            const matchesSearch = q.title.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesSearch = q.title.toLowerCase().includes(query);
             const matchesDifficulty = difficultyFilter === 'All' || q.difficulty === difficultyFilter;
             return matchesSearch && matchesDifficulty;
         });
     }, [activeTopic, searchQuery, difficultyFilter]);
 
     const totalCompleted = completedIds.size;
-    const totalQuestions = dsaTrackerData.reduce((sum, t) => sum + t.questions.length, 0);
-    const topicCompleted = activeTopic.questions.filter(q => completedIds.has(q.id)).length;
+    const totalQuestions = useMemo(() => dsaTrackerData.reduce((sum, t) => sum + t.questions.length, 0), []);
+    const topicCompleted = useMemo(() => activeTopic.questions.filter(q => completedIds.has(q.id)).length, [activeTopic, completedIds]);
 
-    const toggleComplete = (id: string) => {
+    const toggleComplete = React.useCallback((id: string) => {
         setCompletedIds(prev => {
             const next = new Set(prev);
             if (next.has(id)) next.delete(id);
             else next.add(id);
             return next;
         });
-    };
+    }, []);
 
-    const selectTopic = (id: string) => {
+    const selectTopic = React.useCallback((id: string) => {
         setActiveTopicId(id);
         setSearchQuery('');
         setDifficultyFilter('All');
         setSidebarOpen(false);
-    };
+    }, []);
 
     const difficultyColor = {
         Easy: 'text-green-400 bg-green-400/10',
         Medium: 'text-yellow-400 bg-yellow-400/10',
         Hard: 'text-red-400 bg-red-400/10',
     };
-
-    // Sidebar contents — shared between desktop aside and mobile drawer
-    const SidebarContent = () => (
-        <>
-            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Topics</h2>
-            <div className="space-y-2">
-                {dsaTrackerData.map(topic => {
-                    const done = topic.questions.filter(q => completedIds.has(q.id)).length;
-                    const pct = Math.round((done / topic.questions.length) * 100);
-                    const isActive = topic.id === activeTopicId;
-                    return (
-                        <motion.button
-                            key={topic.id}
-                            onClick={() => selectTopic(topic.id)}
-                            whileHover={{ x: 4 }}
-                            className={`w-full text-left px-4 py-3 rounded-xl border transition-all ${isActive
-                                ? 'bg-primary/10 border-primary/40 text-primary'
-                                : 'bg-white/[0.03] border-white/5 text-gray-300 hover:border-white/20 hover:text-white'
-                                }`}
-                        >
-                            <div className="flex justify-between items-center mb-1">
-                                <span className="text-sm font-semibold">{topic.title}</span>
-                                <span className="text-xs text-gray-500">{done}/{topic.questions.length}</span>
-                            </div>
-                            <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden">
-                                <div
-                                    className="h-full bg-primary rounded-full transition-all"
-                                    style={{ width: `${pct}%` }}
-                                />
-                            </div>
-                        </motion.button>
-                    );
-                })}
-            </div>
-        </>
-    );
 
     return (
         <div className="min-h-screen bg-black text-white">
@@ -155,7 +165,11 @@ const DSATracker: React.FC = () => {
                                     <X size={18} />
                                 </button>
                             </div>
-                            <SidebarContent />
+                            <SidebarContent
+                                activeTopicId={activeTopicId}
+                                completedIds={completedIds}
+                                onSelectTopic={selectTopic}
+                            />
                         </motion.div>
                     </>
                 )}
@@ -165,7 +179,11 @@ const DSATracker: React.FC = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-8 flex gap-6">
                 {/* Desktop Sidebar */}
                 <aside className="hidden md:block w-56 lg:w-64 shrink-0">
-                    <SidebarContent />
+                    <SidebarContent
+                        activeTopicId={activeTopicId}
+                        completedIds={completedIds}
+                        onSelectTopic={selectTopic}
+                    />
                 </aside>
 
                 {/* Main Content */}

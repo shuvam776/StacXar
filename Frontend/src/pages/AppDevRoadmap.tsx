@@ -18,6 +18,15 @@ interface Rect {
     height: number;
 }
 
+const getMasteryColor = (level: MasteryLevel) => {
+    switch (level) {
+        case 3: return '#3b82f6';
+        case 2: return '#fbbf24';
+        case 1: return '#22c55e';
+        default: return '#52525b';
+    }
+};
+
 const AppDevRoadmap: React.FC = () => {
     const [selectedTrack, setSelectedTrack] = useState<AppDevTrack | null>(null);
     const { roadmapState, loading, toggleResource } = useRoadmapProgress('appdev');
@@ -70,15 +79,6 @@ const AppDevRoadmap: React.FC = () => {
     const getMastery = useCallback((subtopicId: string): MasteryLevel => {
         return roadmapState[subtopicId]?.mastery || 0;
     }, [roadmapState]);
-
-    const getMasteryColor = (level: MasteryLevel) => {
-        switch (level) {
-            case 3: return '#3b82f6';
-            case 2: return '#fbbf24';
-            case 1: return '#22c55e';
-            default: return '#52525b';
-        }
-    };
 
     if (loading && Object.keys(roadmapState).length === 0) {
         return <LoadingSpinner />;
@@ -195,7 +195,7 @@ const AppDevRoadmap: React.FC = () => {
                                         background="transparent"
                                         minSize={0.4}
                                         maxSize={1}
-                                        particleDensity={100}
+                                        particleDensity={50}
                                         className="w-full h-full"
                                         particleColor="#FFFFFF"
                                     />
@@ -220,7 +220,7 @@ const AppDevRoadmap: React.FC = () => {
 
                                         if (!startRect || !endRect) return null;
 
-                                        const isDesktop = window.innerWidth >= 768;
+                                        const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
                                         const isStartLeft = index % 2 === 0;
 
                                         let startPt = { x: startRect.x + startRect.width / 2, y: startRect.y + startRect.height };

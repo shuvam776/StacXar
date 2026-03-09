@@ -159,6 +159,97 @@ interface AppDevDashboardData {
     internal: { mastered: number; totalActive: number; projection: { readiness: string; nextMilestone: string; } };
 }
 
+// --- Codeforces Graph Component - Moved outside to prevent re-creation ---
+const CodeforcesGraph = React.memo(({ rating, solved, onUpdate }: { rating: number, solved: number, onUpdate: () => void }) => {
+    const { pathD, points, step } = React.useMemo(() => {
+        // Formula-based generation for a premium look even if unrated
+        const baseRating = rating || 800;
+        const solveBonus = solved * 2;
+        const total = baseRating + solveBonus;
+
+        const pts = Array.from({ length: 10 }).map((_, i) => {
+            const noise = Math.random() * 5;
+            const trend = (i / 9) * 20;
+            return Math.min(100, (total / 3000) * 100 + trend + noise);
+        });
+
+        const width = 100;
+        const stp = width / (pts.length - 1);
+        const pD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${i * stp} ${100 - p}`).join(' ');
+
+        return { pathD: pD, points: pts, step: stp };
+    }, [rating, solved]);
+
+    return (
+        <motion.div
+            whileHover={{ scale: 1.01 }}
+            className="lg:col-span-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 relative overflow-hidden h-72 group"
+        >
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent pointer-events-none"></div>
+            <div className="flex flex-col sm:flex-row justify-between items-start mb-8 relative z-10 gap-4 sm:gap-2">
+                <div className="w-full sm:w-auto min-w-0 overflow-hidden pr-2">
+                    <h3 className="text-lg sm:text-xl font-black text-white italic uppercase tracking-tighter truncate">CP Performance Trajectory</h3>
+                    <p className="text-gray-500 text-[9px] sm:text-xs font-bold font-mono truncate w-full">ESTIMATED RATING TREND & SOLVE VELOCITY</p>
+                </div>
+                <div className="text-left sm:text-right shrink-0">
+                    <div className="text-3xl font-black text-blue-400">{rating || 'UR'}</div>
+                    <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Current Rating</div>
+                </div>
+            </div>
+
+            <div className="relative h-32 w-full mt-4">
+                <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full overflow-visible">
+                    <motion.path
+                        d={pathD}
+                        fill="none"
+                        stroke="#3b82f6"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        initial={{ pathLength: 0, opacity: 0 }}
+                        animate={{ pathLength: 1, opacity: 1 }}
+                        transition={{ duration: 2, ease: "easeInOut" }}
+                    />
+                    {points.map((p, i) => (
+                        <motion.circle
+                            key={i}
+                            cx={i * step}
+                            cy={100 - p}
+                            r="1.5"
+                            fill="#fff"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: 1 + i * 0.1 }}
+                        />
+                    ))}
+                </svg>
+            </div>
+
+            <div className="grid grid-cols-[1fr_1fr_auto] gap-2 sm:gap-4 mt-8 pt-6 border-t border-white/5 relative z-10 items-center">
+                <div className="text-center overflow-hidden">
+                    <div className="text-[9px] sm:text-[10px] font-bold text-gray-500 uppercase truncate">Solved</div>
+                    <div className="text-base sm:text-lg font-black text-white truncate">{solved}</div>
+                </div>
+                <div className="text-center overflow-hidden">
+                    <div className="text-[9px] sm:text-[10px] font-bold text-gray-500 uppercase truncate">Velocity</div>
+                    <div className="text-base sm:text-lg font-black text-green-500 truncate">+{Math.round(solved / 10)}%</div>
+                </div>
+                <div className="text-right flex items-center justify-end shrink-0">
+                    <button
+                        onClick={onUpdate}
+                        className="p-3 bg-white/5 rounded-2xl hover:bg-white/10 text-gray-400 hover:text-white transition-all transform hover:rotate-12 border border-white/5"
+                        title="Update Handle"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                    </button>
+                </div>
+            </div>
+        </motion.div>
+    );
+});
+
+CodeforcesGraph.displayName = 'CodeforcesGraph';
+
 const Dashboard: React.FC = () => {
     const [dsaData, setDsaData] = useState<DsaDashboardData | null>(null);
     const [webDevData, setWebDevData] = useState<WebDevDashboardData | null>(null);
@@ -170,7 +261,7 @@ const Dashboard: React.FC = () => {
 
     const user = auth.currentUser;
 
-    const fetchData = async (silent = false) => {
+    const fetchData = React.useCallback(async (silent = false) => {
         if (!user) return;
         if (!silent) setLoading(true);
         try {
@@ -189,11 +280,11 @@ const Dashboard: React.FC = () => {
         } finally {
             if (!silent) setLoading(false);
         }
-    };
+    }, [user]);
 
     useEffect(() => {
         fetchData();
-    }, [user]);
+    }, [fetchData]);
 
     const handleSaveId = React.useCallback(async (type?: 'leetcode' | 'codeforces' | 'github', value?: string) => {
         const targetType = type || editMode?.type;
@@ -216,7 +307,7 @@ const Dashboard: React.FC = () => {
         } catch (err) {
             setSaveStatus('error');
         }
-    }, [editMode, cfEditMode, user]);
+    }, [editMode, user, fetchData]);
 
     const handleEditStart = React.useCallback((type: 'leetcode' | 'codeforces' | 'github') => {
         setEditMode({ type, value: '' });
@@ -231,95 +322,6 @@ const Dashboard: React.FC = () => {
     }, []);
 
     if (loading && !dsaData) return <LoadingSpinner />;
-
-    // --- Codeforces Graph Component ---
-    const CodeforcesGraph = ({ rating, solved }: { rating: number, solved: number }) => {
-        const { pathD, points, step } = React.useMemo(() => {
-            // Formula-based generation for a premium look even if unrated
-            const baseRating = rating || 800;
-            const solveBonus = solved * 2;
-            const total = baseRating + solveBonus;
-
-            const pts = Array.from({ length: 10 }).map((_, i) => {
-                const noise = Math.random() * 5;
-                const trend = (i / 9) * 20;
-                return Math.min(100, (total / 3000) * 100 + trend + noise);
-            });
-
-            const width = 100;
-            const stp = width / (pts.length - 1);
-            const pD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${i * stp} ${100 - p}`).join(' ');
-
-            return { pathD: pD, points: pts, step: stp };
-        }, [rating, solved]);
-
-        return (
-            <motion.div
-                whileHover={{ scale: 1.01 }}
-                className="lg:col-span-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 relative overflow-hidden h-72 group"
-            >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent pointer-events-none"></div>
-                <div className="flex flex-col sm:flex-row justify-between items-start mb-8 relative z-10 gap-4 sm:gap-2">
-                    <div className="w-full sm:w-auto min-w-0 overflow-hidden pr-2">
-                        <h3 className="text-lg sm:text-xl font-black text-white italic uppercase tracking-tighter truncate">CP Performance Trajectory</h3>
-                        <p className="text-gray-500 text-[9px] sm:text-xs font-bold font-mono truncate w-full">ESTIMATED RATING TREND & SOLVE VELOCITY</p>
-                    </div>
-                    <div className="text-left sm:text-right shrink-0">
-                        <div className="text-3xl font-black text-blue-400">{rating || 'UR'}</div>
-                        <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Current Rating</div>
-                    </div>
-                </div>
-
-                <div className="relative h-32 w-full mt-4">
-                    <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full overflow-visible">
-                        <motion.path
-                            d={pathD}
-                            fill="none"
-                            stroke="#3b82f6"
-                            strokeWidth="3"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            initial={{ pathLength: 0, opacity: 0 }}
-                            animate={{ pathLength: 1, opacity: 1 }}
-                            transition={{ duration: 2, ease: "easeInOut" }}
-                        />
-                        {points.map((p, i) => (
-                            <motion.circle
-                                key={i}
-                                cx={i * step}
-                                cy={100 - p}
-                                r="1.5"
-                                fill="#fff"
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ delay: 1 + i * 0.1 }}
-                            />
-                        ))}
-                    </svg>
-                </div>
-
-                <div className="grid grid-cols-[1fr_1fr_auto] gap-2 sm:gap-4 mt-8 pt-6 border-t border-white/5 relative z-10 items-center">
-                    <div className="text-center overflow-hidden">
-                        <div className="text-[9px] sm:text-[10px] font-bold text-gray-500 uppercase truncate">Solved</div>
-                        <div className="text-base sm:text-lg font-black text-white truncate">{solved}</div>
-                    </div>
-                    <div className="text-center overflow-hidden">
-                        <div className="text-[9px] sm:text-[10px] font-bold text-gray-500 uppercase truncate">Velocity</div>
-                        <div className="text-base sm:text-lg font-black text-green-500 truncate">+{Math.round(solved / 10)}%</div>
-                    </div>
-                    <div className="text-right flex items-center justify-end shrink-0">
-                        <button
-                            onClick={() => setCfEditMode({ value: dsaData?.user.codeforcesUsername || '', section: 'stats' })}
-                            className="p-3 bg-white/5 rounded-2xl hover:bg-white/10 text-gray-400 hover:text-white transition-all transform hover:rotate-12 border border-white/5"
-                            title="Update Handle"
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                        </button>
-                    </div>
-                </div>
-            </motion.div>
-        );
-    };
 
     // --- Memoized Helper Components for Empty States ---
     const EditForm = React.memo(({ value, type, onCancel, onChange, onSave, status }: {
@@ -452,7 +454,7 @@ const Dashboard: React.FC = () => {
                             background="transparent"
                             minSize={0.6}
                             maxSize={1.4}
-                            particleDensity={100}
+                            particleDensity={50}
                             className="w-full h-full"
                             particleColor="#FFD700"
                         />
@@ -649,7 +651,7 @@ const Dashboard: React.FC = () => {
                             <span className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></span>
                             Competitive Programming Stats
                         </h2>
-                        <div className="h-px bg-white/10 flex-grow"></div>
+                        <div className="h-px bg-white/10 grow"></div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 group">
                         {cfEditMode && cfEditMode.section === 'stats' ? (
@@ -669,6 +671,7 @@ const Dashboard: React.FC = () => {
                             <CodeforcesGraph
                                 rating={dsaData.stats.codeforces.rating}
                                 solved={dsaData.stats.codeforces.solved}
+                                onUpdate={React.useCallback(() => setCfEditMode({ value: dsaData?.user.codeforcesUsername || '', section: 'stats' }), [dsaData?.user.codeforcesUsername])}
                             />
                         ) : (
                             <div className="lg:col-span-3">
@@ -698,7 +701,7 @@ const Dashboard: React.FC = () => {
                             <span className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></span>
                             Product Engineering
                         </h2>
-                        <div className="h-px bg-white/10 flex-grow"></div>
+                        <div className="h-px bg-white/10 grow"></div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
@@ -802,7 +805,7 @@ const Dashboard: React.FC = () => {
                             <span className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></span>
                             Mobile Engineering
                         </h2>
-                        <div className="h-px bg-white/10 flex-grow"></div>
+                        <div className="h-px bg-white/10 grow"></div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">

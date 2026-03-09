@@ -17,6 +17,15 @@ interface Rect {
     height: number;
 }
 
+const getMasteryColor = (level: MasteryLevel) => {
+    switch (level) {
+        case 3: return '#3b82f6'; // Blue
+        case 2: return '#fbbf24'; // Yellow
+        case 1: return '#22c55e'; // Green
+        default: return '#52525b'; // Zinc-600
+    }
+};
+
 const WebDevRoadmap: React.FC = () => {
     // 1. Data Setup - Memoized to prevent recalculation on every render
     const allSubtopics = useMemo(() => webDevTopics.flatMap(t => t.subtopics), []);
@@ -65,16 +74,6 @@ const WebDevRoadmap: React.FC = () => {
         return roadmapState[subtopicId]?.mastery || 0;
     }, [roadmapState]);
 
-    const getMasteryColor = (level: MasteryLevel) => {
-        switch (level) {
-            case 3: return '#3b82f6'; // Blue
-            case 2: return '#fbbf24'; // Yellow
-            case 1: return '#22c55e'; // Green
-            default: return '#52525b'; // Zinc-600
-        }
-    };
-
-    // Show loading spinner only for the initial data fetch if required
     if (loading && Object.keys(roadmapState).length === 0) {
         return <LoadingSpinner />;
     }
@@ -99,7 +98,7 @@ const WebDevRoadmap: React.FC = () => {
                             background="transparent"
                             minSize={0.4}
                             maxSize={1}
-                            particleDensity={100}
+                            particleDensity={50}
                             className="w-full h-full"
                             particleColor="#FFFFFF"
                         />
@@ -124,7 +123,7 @@ const WebDevRoadmap: React.FC = () => {
 
                             if (!startRect || !endRect) return null;
 
-                            const isDesktop = window.innerWidth >= 768;
+                            const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
                             const isStartLeft = index % 2 === 0;
 
                             let startPt = { x: startRect.x + startRect.width / 2, y: startRect.y + startRect.height };

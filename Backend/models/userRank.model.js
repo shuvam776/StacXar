@@ -13,18 +13,15 @@ const userRankSchema = new mongoose.Schema({
         unique: true
     },
     leetcode: {
-        easy: { type: Number, default: 0 },
-        medium: { type: Number, default: 0 },
-        hard: { type: Number, default: 0 },
+        stats: { type: Object, default: null },
         score: { type: Number, default: 0 }
     },
     codeforces: {
-        rating: { type: Number, default: 0 },
-        solved: { type: Number, default: 0 },
+        stats: { type: Object, default: null },
         score: { type: Number, default: 0 }
     },
     github: {
-        validRepos: { type: Number, default: 0 },
+        stats: { type: Object, default: null },
         score: { type: Number, default: 0 }
     },
     finalScore: {

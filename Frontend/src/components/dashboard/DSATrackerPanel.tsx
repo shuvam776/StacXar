@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { dsaTrackerData, type DSAQuestion } from '../../data/dsaQuestions';
 import { ChevronRight, Code2, ArrowRight } from 'lucide-react';
-import SolutionViewerModal from './SolutionViewerModal';
+// Lazy load heavy modal
+const SolutionViewerModal = React.lazy(() => import('./SolutionViewerModal'));
 
 const DSATrackerPanel: React.FC = () => {
     // All local state — as requested
@@ -18,18 +19,26 @@ const DSATrackerPanel: React.FC = () => {
         [activeCategory]
     );
 
-    const toggleComplete = (id: string) => {
+    const toggleComplete = React.useCallback((id: string) => {
         setCompletedIds(prev => {
             const next = new Set(prev);
             if (next.has(id)) next.delete(id);
             else next.add(id);
             return next;
         });
-    };
+    }, []);
 
-    const topicCompleted = currentTopic.questions.filter(q => completedIds.has(q.id)).length;
-    const totalCompleted = completedIds.size;
-    const totalQuestions = dsaTrackerData.reduce((s, t) => s + t.questions.length, 0);
+    const topicCompleted = useMemo(() =>
+        currentTopic.questions.filter(q => completedIds.has(q.id)).length,
+        [currentTopic, completedIds]
+    );
+
+    const totalCompleted = useMemo(() => completedIds.size, [completedIds]);
+
+    const totalQuestions = useMemo(() =>
+        dsaTrackerData.reduce((s, t) => s + t.questions.length, 0),
+        []
+    );
 
     return (
         <>
@@ -160,12 +169,14 @@ const DSATrackerPanel: React.FC = () => {
                 </div>
             </div>
 
-            {/* Solution Modal rendered locally */}
-            <SolutionViewerModal
-                isOpen={!!selectedQuestion}
-                onClose={() => setSelectedQuestion(null)}
-                question={selectedQuestion}
-            />
+            {/* Solution Modal rendered locally - Lazy loaded */}
+            <React.Suspense fallback={null}>
+                <SolutionViewerModal
+                    isOpen={!!selectedQuestion}
+                    onClose={() => setSelectedQuestion(null)}
+                    question={selectedQuestion}
+                />
+            </React.Suspense>
         </>
     );
 };

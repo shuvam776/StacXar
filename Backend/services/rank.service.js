@@ -169,9 +169,9 @@ const recomputeUserRank = async (user) => {
             { userId: user._id },
             {
                 userEmail: user.email,
-                leetcode: lcData,
-                codeforces: cfData,
-                github: ghData,
+                leetcode: { ...lcData, stats: leetcode },
+                codeforces: { ...cfData, stats: codeforces },
+                github: { ...ghData, stats: github },
                 finalScore,
                 updatedAt: new Date()
             },
